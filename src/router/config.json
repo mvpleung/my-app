@@ -1,0 +1,172 @@
+[{
+        "path": "*",
+        "name": "404",
+        "component": "/common/404"
+    },
+    {
+        "path": "/error",
+        "name": "error",
+        "component": "/common/error"
+    },
+    {
+        "path": "/login",
+        "name": "login",
+        "title": "登录",
+        "component": "/login/login"
+    },
+    {
+        "path": "/register",
+        "name": "register",
+        "title": "注册",
+        "component": "/login/register"
+    },
+    {
+        "path": "/verify",
+        "name": "verify",
+        "title": "校验测试",
+        "component": "/common/verify"
+    },
+    {
+        "path": "/logger/true",
+        "name": "logger",
+        "title": "调试",
+        "component": "/common/logger"
+    },
+    {
+        "path": "/homePage",
+        "name": "homePage",
+        "title": "首页",
+        "component": "/home/homePage",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+    },
+    {
+        "path": "/productPage/:selected?",
+        "name": "productPage",
+        "title": "产品中心",
+        "component": "/product/productPage",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+    },
+    {
+        "path": "/goodDetail/:id",
+        "name": "goodDetail",
+        "title": "产品详情",
+        "component": "/product/goodDetail",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+    },
+    {
+        "path": "/minePage",
+        "name": "minePage",
+        "title": "个人中心",
+        "component": "/mine/minePage",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+    },
+    {
+        "path": "/certification",
+        "name": "certification",
+        "title": "线上入司",
+        "component": "/mine/children/certification",
+        "meta": {
+            "requireAuth": false,
+            "wxShare": true
+        }
+    },
+    {
+        "path": "/order",
+        "name": "order",
+        "title": "我的订单",
+        "component": "/mine/children/order",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+    },
+    {
+        "path": "/alliance",
+        "name": "alliance",
+        "title": "我的联盟",
+        "component": "/mine/children/alliance",
+        "meta": {
+            "requireAuth": true,
+            "keepAlive": true
+        }
+
+    },
+    {
+        "path": "/integral",
+        "name": "integral",
+        "title": "我的积分",
+        "component": "/mine/children/integral",
+        "meta": {
+            "requireAuth": true
+        }
+    },
+    {
+        "path": "/friends",
+        "name": "friends",
+        "title": "邀请好友",
+        "component": "/mine/children/friends",
+        "meta": {
+            "requireAuth": true,
+            "wxShare": true
+        }
+    },
+    {
+        "path": "/agreement",
+        "name": "agreement",
+        "title": "用户协议",
+        "component": "/login/agreement"
+    },
+    {
+        "path": "/allianceDetail",
+        "name": "allianceDetail",
+        "title": "我的联盟详情",
+        "component": "/mine/children/allianceDetail",
+        "meta": {
+            "requireAuth": true
+        }
+    },
+    {
+        "path": "/suballianceDetail",
+        "name": "suballianceDetail",
+        "title": "我的联盟详情-子详情",
+        "component": "/mine/children/suballianceDetail",
+        "meta": {
+            "requireAuth": true
+        }
+    },
+    {
+        "path": "/integralList",
+        "name": "integralList",
+        "title": "我的积分详情",
+        "component": "/mine/children/integralList",
+        "meta": {
+            "requireAuth": true
+        }
+    },
+    {
+        "path": "/inviteFriend",
+        "component": "/mine/children/inviteFriend",
+        "meta": {
+            "requireAuth": true
+        }
+    },
+    {
+        "path": "/policyDetail",
+        "component": "/policy/1050/policyDetail",
+        "meta": {
+            "requireAuth": true
+        }
+    }
+]

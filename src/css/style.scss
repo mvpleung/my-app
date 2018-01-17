@@ -1,0 +1,187 @@
+@import url("//at.alicdn.com/t/font_352963_jvyeag6321sv2t9.css"); //阿里矢量图
+
+/* v2.0 | 20110126
+  http://meyerweb.com/eric/tools/css/reset/ 
+  License: none (public domain)
+*/
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+
+/* HTML5 display-role reset for older browsers */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+}
+
+ol,
+ul {
+    list-style: none;
+}
+
+blockquote,
+q {
+    quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.mint-cell {
+    .mint-cell-wrapper {
+        .mint-cell-text {
+            white-space: nowrap;
+        }
+    }
+}
+
+.mint-toast,
+.mint-toast.is-placemiddle,
+.mint-indicator,
+.mint-indicator-wrapper {
+    z-index: 9999 !important;
+}
+
+//去掉手机上点击时出现的阴影
+a {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+.hide {
+    display: none;
+}
+
+//去掉mint-cell的默认边框线
+.mint-cell {
+    .mint-cell-wrapper {
+        background: none;
+        border-bottom: 1px solid #E8E8E8;
+    }
+}
+
+.mint-cell:last-child {
+    background: none;
+}
+
+div .mint-cell:last-child {
+    background: none;
+}
+
+//修复弹层滚动穿透
+.modal-open-helper {
+    position: fixed;
+    width: 100%;
+}
