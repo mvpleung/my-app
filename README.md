@@ -1,4 +1,4 @@
-# command-1.0
+# vue-app
 
 > A Vue.js project
 
