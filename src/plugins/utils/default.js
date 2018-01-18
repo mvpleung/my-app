@@ -130,6 +130,26 @@ module.exports = (function () {
     }
 
     /**
+     * 获取Url全部参数
+     * @returns {Object}
+     */
+    function getUrlVars() {
+        let vars = {}, hash;
+        let getParam = url => {
+            let hashes = (url || window.location.search).slice((url || window.location.search).indexOf('?') + 1).split('&');
+            for (let i = 0; i < hashes.length; i++) {
+                if (!isEmpty(hashes[i])) {
+                    hash = hashes[i].split('=');
+                    hash[1] && (vars[hash[0]] = hash[1].endWith('/') ? hash[1].slice(0, hash[1].length - 1) : hash[1])
+                }
+            }
+        }
+        getParam();
+        getParam(location.hash);
+        return vars;
+    }
+
+    /**
      * 移除URL中的参数
      * @param {String} url 
      * @param {String} name 
@@ -607,6 +627,7 @@ module.exports = (function () {
         trim: trim, //去除空格
         is: is, //数据类型判断(Object/Array/String等)
         getUrlParams: getUrlParams, //获取Url传参(a?code=123)
+        getUrlVars: getUrlVars, //获取URL全部参数
         removeUrlParam: removeUrlParam, //移除URL参数
         setUrlParams: setUrlParams, //设置URL参数
         setSessionStorage: setSessionStorage, //存入 session 缓存 （自动转换为String）

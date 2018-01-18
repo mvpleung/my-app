@@ -1,7 +1,16 @@
-[{
+[
+    {
         "path": "*",
         "name": "404",
         "component": "/common/404"
+    },
+    {
+        "path": "/oauth",
+        "name": "oauth",
+        "component": "/oauth/oauth",
+        "meta": {
+            "requireAuth": false
+        }
     },
     {
         "path": "/error",
@@ -101,7 +110,6 @@
             "requireAuth": true,
             "keepAlive": true
         }
-
     },
     {
         "path": "/integral",

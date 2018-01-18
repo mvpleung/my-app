@@ -5,7 +5,7 @@ import store from '@/store'
 import * as Types from '@/store/types'
 Vue.use(Router);
 
-String.prototype.startWith = function(str, ignoreCase) {
+String.prototype.startWith = function (str, ignoreCase) {
     if (str == null || str == "" || this.length == 0 || str.length > this.length)
         return false;
     if ((ignoreCase && this.toUpperCase().substr(0, str.length) == str.toUpperCase()) || (!ignoreCase && this.substr(0, str.length) == str))
@@ -14,7 +14,7 @@ String.prototype.startWith = function(str, ignoreCase) {
         return false;
     return true;
 }
-Array.prototype.indexOf = function(val) {
+Array.prototype.indexOf = function (val) {
     for (var i = 0; i < this.length; i++) {
         if (this[i] == val) return i;
     }
@@ -28,7 +28,7 @@ const initRoute = (rt) => {
             path: rt.path,
             // component: resolve => require([`@/${parentPath}${rt.component}`], resolve), //懒加载
             component: () =>
-                import (`@/${parentPath}${rt.component}`), //按需加载
+                import(`@/${parentPath}${rt.component}`), //按需加载
             redirect: rt.redirect,
             meta: {
                 title: rt.title || rt.name,
@@ -61,12 +61,12 @@ const registerRoute = (config) => {
     vues.forEach(vue => {
         let vueName = vue.substring(vue.lastIndexOf('/'), vue.lastIndexOf('.'));
         let exec = /\.\/([^/]+)\//g.exec(vue) || [],
-            path = (exec[1] === 'policy' ? `${vue.substring(vue.indexOf('/policy') + 7, vue.lastIndexOf('.'))}` : vueName) + '/:title?';
+            path = vueName + '/:title?';
         routes.push({
             name: path.substring(1),
             path: path,
             component: () =>
-                import (`@/pages${vue.substring(1)}`),
+                import(`@/pages${vue.substring(1)}`),
             meta: {
                 requireAuth: true
             }
@@ -86,8 +86,6 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
     router.app.$indicator.close();
     from.path === '/' ? document.title = (to.meta.title || to.params.title || document.title) : document.setTitle(to.meta.title || to.params.title || document.title);
-    store.dispatch(Types.SET_MODEL, from.query.model || to.query.model);
-    store.dispatch(Types.WX_SHARE_ENABLE, { vm: router.app, wxShare: to.meta.wxShare }); //路由切换时控制微信分享
     navigationBehavior(from, to);
     if (globalConfig.requireAuth && to.matched.some(r => r.meta.requireAuth)) { //判断该路由是否需要登录权限
         if (store.getters.isLogin) { //通过vuex state 判断是否登录
@@ -99,11 +97,11 @@ router.beforeEach((to, from, next) => {
         } else { //未登录，触发授权登录事件
             let query = to.query;
             query.openId = query.openId || from.query.openId;
-            query.agentCode = query.agentCode || from.query.agentCode;
-            store.dispatch(Types.WX_OAUTH, { vm: router.app, query: query, redirect: window.location.origin + '/#' + to.fullPath }).then(route => {
+            query.userId = query.userId || from.query.userId;
+            store.dispatch(Types.WAP_OAUTH, { vm: router.app, query: query, redirectUri: window.location.origin + '/#' + to.fullPath }).then(route => {
                 if (route.path || route.name) {
-                    let query = Object.assign({}, { redirect: to.fullPath }, route.query);
-                    delete query.agentcode;
+                    let query = Object.assign({}, { redirectUri: to.fullPath }, route.query);
+                    delete query.userId;
                     delete query.openId;
                     route.query = query;
                     router.replace(route);
