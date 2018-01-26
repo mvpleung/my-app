@@ -4,6 +4,7 @@ import router from './router'
 import MintUI from 'mint-ui'
 import Axios from './axios'
 import store from './store'
+import 'babel-polyfill'
 //import verify from 'verify-plugin'
 import verify from './plugins/verify-plugin'
 //import utils from 'vue-utils-plugin'
@@ -33,13 +34,8 @@ Vue.config.productionTip = store.getters.debug;
 Vue.config.errorHandler = function (err, vm, info) {
     console.error(err, info);
     MintUI.MessageBox(info, err.message);
-    // store.dispatch('pushLog', {
-    //     err,
-    //     url: window.location.href,
-    //     vm
-    // });
 };
-
+window.Vue = Vue;
 new Vue({
     router,
     store,

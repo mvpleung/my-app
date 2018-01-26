@@ -3,7 +3,7 @@ var utils = require('./utils')
 var config = require('../config')
 var vueLoaderConfig = require('./vue-loader.conf')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
@@ -11,7 +11,7 @@ function resolve (dir) {
 module.exports = {
   devtool: process.env.NODE_ENV === 'production' ? 'cheap-module-source-map' : '',
   entry: {
-    app: ['./src/css/style.scss', './src/js/globalConfig.js','./src/main.js']
+    app: ['./node_modules/amfe-flexible/index.js', './src/css/style.scss', './src/js/globalConfig.js', './src/main.js']
   },
   output: {
     path: config.build.assetsRoot,

@@ -21,7 +21,7 @@ exports.cssLoaders = function (options) {
   }
 
   // generate loader string to be used with extract text plugin
-  function generateLoaders (loader, loaderOptions) {
+  function generateLoaders(loader, loaderOptions) {
     var loaders = [cssLoader]
     if (loader) {
       loaders.push({
@@ -68,4 +68,22 @@ exports.styleLoaders = function (options) {
     })
   }
   return output
+}
+
+exports.createNotifierCallback = () => {
+  const notifier = require('node-notifier')
+
+  return (severity, errors) => {
+    if (severity !== 'error') return
+
+    const error = errors[0]
+    const filename = error.file && error.file.split('!').pop()
+
+    notifier.notify({
+      title: packageConfig.name,
+      message: severity + ': ' + error.name,
+      subtitle: filename || '',
+      icon: path.join(__dirname, 'logo.png')
+    })
+  }
 }

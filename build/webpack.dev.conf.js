@@ -6,14 +6,13 @@ var merge = require('webpack-merge')
 var baseWebpackConfig = require('./webpack.base.conf')
 var CopyWebpackPlugin = require('copy-webpack-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
-var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 
-var resolveApp = function(relativePath) {
+var resolveApp = function (relativePath) {
     return path.resolve(relativePath);
 }
 
 // add hot-reload related code to entry chunks
-Object.keys(baseWebpackConfig.entry).forEach(function(name) {
+Object.keys(baseWebpackConfig.entry).forEach(function (name) {
     baseWebpackConfig.entry[name] = ['./build/dev-client'].concat(baseWebpackConfig.entry[name])
 })
 
@@ -38,7 +37,6 @@ module.exports = merge(baseWebpackConfig, {
             inject: true,
             env: process.env.env_config,
             path: config.dev.assetsPublicPath + config.dev.assetsSubDirectory
-        }),
-        new FriendlyErrorsPlugin()
+        })
     ],
 })
