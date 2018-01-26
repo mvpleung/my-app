@@ -40,7 +40,7 @@ export default {
             this.errorMsg = '';
             if (!this.$utils.isEmpty(this.query.redirectUri)) {
               let userInfo = resp.user_info || {};
-              this.updateUser({ data: userInfo, vm: this });
+              this.updateUser(userInfo);
               let redirectUri = this.$utils.setUrlParams(
                 { openId: userInfo.openid },
                 this.query.redirectUri
