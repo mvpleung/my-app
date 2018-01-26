@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-01-26 15:37:05
+ * @Last Modified time: 2018-01-26 16:04:49
  */
 import * as Type from '@/store/types.js'
 const user = {
@@ -39,8 +39,8 @@ const user = {
         /**
          * 更新本地用户缓存(包含有效时间,默认7天)
          */
-        [Type.UPDATE_USER]: (state, data) => {
-            Vue.$utils.setLocalStorage('ht_u_info', (state.user = data.data), { exp: 60 * 60 * 24 * 7, needCipher: true });
+        [Type.UPDATE_USER]: (state, userInfo) => {
+            Vue.$utils.setLocalStorage('ht_u_info', (state.user = userInfo), { exp: 60 * 60 * 24 * 7, needCipher: true });
         },
         /**
          * 更新微信OpenId
@@ -91,10 +91,10 @@ const user = {
         /**
          * 更新缓存用户信息
          * @param {Store*} commit module 
-         * @param {Object} data 用户信息 
+         * @param {Object} userInfo 用户信息 
          */
-        [Type.UPDATE_USER]({ commit }, data) {
-            commit(Type.UPDATE_USER, data);
+        [Type.UPDATE_USER]({ commit }, userInfo) {
+            commit(Type.UPDATE_USER, userInfo);
         },
         /**
          * 检测本地用户信息是否已经过期（默认七天）
@@ -102,7 +102,7 @@ const user = {
          */
         [Type.CHECK_USER_INFO](context) {
             return new Promise((resolve, reject) => {
-                let userInfo = Vue.$utils.getLocalStorage('userInfo', { exp: 60 * 60 * 24 * 7, needDecipher: true });
+                let userInfo = Vue.$utils.getLocalStorage('ht_u_info', { exp: 60 * 60 * 24 * 7, needDecipher: true });
                 if (userInfo && userInfo.expire) { //已过期，重新获取数据
                     context.dispatch(Type.GET_USER, {
                         agentCode: (userInfo.data || {}).agentCode,
