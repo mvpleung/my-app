@@ -2,7 +2,7 @@
     {
         "path": "*",
         "name": "404",
-        "component": "/common/404"
+        "component": "components/common/404"
     },
     {
         "path": "/oauth",
@@ -15,7 +15,7 @@
     {
         "path": "/error",
         "name": "error",
-        "component": "/common/error"
+        "component": "components/common/error"
     },
     {
         "path": "/login",
@@ -33,13 +33,13 @@
         "path": "/verify",
         "name": "verify",
         "title": "校验测试",
-        "component": "/common/verify"
+        "component": "components/common/verify"
     },
     {
         "path": "/logger/true",
         "name": "logger",
         "title": "调试",
-        "component": "/common/logger"
+        "component": "components/common/logger"
     },
     {
         "path": "/homePage",

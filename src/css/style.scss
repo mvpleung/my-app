@@ -94,7 +94,6 @@ video {
     vertical-align: baseline;
 }
 
-
 /* HTML5 display-role reset for older browsers */
 
 article,
@@ -197,4 +196,69 @@ div .mint-cell:last-child {
 
 .font12 {
     font-size: 12px;
+}
+
+$brower-default-font-size: 16px !default;
+// px 转换 rem，单位 px
+@function px2rem($px) {
+    @return strip-units($px) / strip-units($brower-default-font-size) * 1rem;
+}
+@function strip-units($number) {
+    @return $number / ($number * 0 + 1);
+}
+
+/**
+ * rem 批量计算 px，示例 @include remCalc(padding, 5, 4, 3, 1)
+ * @params $property 属性名（width、height等）
+ * @params $values 属性值，可以是多个，单位 rem
+ */
+@mixin remCalc($property, $values...) {
+    $max: length($values);
+    $pxValues: '';
+    $remValues: '';
+
+    @for $i from 1 through $max {
+        $value: strip-units(nth($values, $i)); 
+        $brower-default-font-size: strip-units($brower-default-font-size);
+        $pxValues: #{$pxValues + $value * $brower-default-font-size}px;
+
+        @if $i < $max {
+            $pxValues: #{$pxValues + ' '};
+        }
+    }
+
+    @for $i from 1 through $max {
+        $value: strip-units(nth($values, $i)); //返回 $i 的值，并去除后缀单位
+        $remValues: #{$remValues + $value}rem;
+
+        @if $i < $max {
+            $remValues: #{$remValues + ' '};
+        }
+    }
+
+    #{$property}: $pxValues;
+    #{$property}: $remValues;
+}
+
+/**
+ * px 批量计算 rem，示例 @include calcRem(padding, 5, 4, 3, 1)
+ * @params $property 属性名（width、height等）
+ * @params $values 属性值，可以是多个，单位 px
+ */
+@mixin calcRem($property, $values...) {
+    $max: length($values);
+    $pxValues: ();
+    $remValues: ();
+
+    @for $i from 1 through $max {
+        $value: strip-units(nth($values, $i)); //取出 i 位置的值，并去除单位
+        $pxValues: append($pxValues, $value + px);
+    }
+
+    @for $i from 1 through $max {
+        $remValues: append($remValues, px2rem(nth($values, $i)));
+    }
+
+    #{$property}: $pxValues;
+    #{$property}: $remValues;
 }

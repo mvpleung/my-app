@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-01-18 17:52:47
+ * @Last Modified time: 2018-01-26 15:37:05
  */
 import * as Type from '@/store/types.js'
 const user = {
@@ -15,16 +15,11 @@ const user = {
     getters: {
         openId: state => state.openId || (state.openId = sessionStorage.ht_u_openId), //微信openId
         userId: state => state.userId || (state.userId = sessionStorage.ht_u_userId), //微信openId
-        isLogin: (state, getters) => { //是否登录，校验本地存储的 agentCode
+        isLogin: (state, getters) => { //是否登录，校验本地存储的 openid
             let user = getters.user;
-            return user && user.agentCode && user.agentCode !== null && user.agentCode !== '';
+            return user && !Vue.$utils.isEmpty(user.openid);
         },
-        user: state => { //本地存储的用户信息
-            try {
-                state.user = JSON.parse(localStorage.ht_u_info);
-            } catch (e) { }
-            return state.user ? (state.user.data || {}) : {};
-        }
+        user: state => state.user || (state.user = Vue.$utils.getLocalStorage('ht_u_info', { exp: 60 * 60 * 24 * 7, force: true, needDecipher: true })) || {}
     },
     mutations: {
         /**
@@ -45,7 +40,7 @@ const user = {
          * 更新本地用户缓存(包含有效时间,默认7天)
          */
         [Type.UPDATE_USER]: (state, data) => {
-            (data.vm || this.default._vm).$utils.setLocalStorage('ht_u_info', (state.user = data.data), 60 * 60 * 24 * 7);
+            Vue.$utils.setLocalStorage('ht_u_info', (state.user = data.data), { exp: 60 * 60 * 24 * 7, needCipher: true });
         },
         /**
          * 更新微信OpenId
@@ -104,21 +99,19 @@ const user = {
         /**
          * 检测本地用户信息是否已经过期（默认七天）
          * @param {Store} context store module
-         * @param {Vue} vm Vue 实例 
          */
-        [Type.CHECK_USER_INFO](context, vm) {
+        [Type.CHECK_USER_INFO](context) {
             return new Promise((resolve, reject) => {
-                let userInfo = vm.$utils.getLocalStorage('userInfo', 60 * 60 * 24 * 7);
+                let userInfo = Vue.$utils.getLocalStorage('userInfo', { exp: 60 * 60 * 24 * 7, needDecipher: true });
                 if (userInfo && userInfo.expire) { //已过期，重新获取数据
                     context.dispatch(Type.GET_USER, {
-                        vm: vm,
                         agentCode: (userInfo.data || {}).agentCode,
                         model: context.getters.model,
                         errorHandle: true
                     }).then(resp => {
                         resolve();
                     }).catch(err => {
-                        data.vm.$messagebox(err);
+                        Vue.$messagebox(err);
                         reject(err);
                         console.error(err);
                     })
@@ -138,27 +131,21 @@ const user = {
                 userId = data.query.userId || context.getters.userId;
             return new Promise((resolve, reject) => {
                 if (!openId || openId === '' || !userId || userId === '') {
-                    //解决企业微信浏览器 window.location.href 不能跳转的问题
-                    // let link = document.createElement('a');
-                    // link.href = `/#/oauth?redirectUri=${encodeURIComponent(data.redirect)}`;
-                    // link.click();
-                    // link.remove();
                     resolve({ path: '/oauth' });
                 } else {
                     //更新缓存数据
                     context.dispatch(Type.UPDATE_OPENID, openId);
                     context.dispatch(Type.UPDATE_USERID, userId);
                     context.dispatch(Type.GET_USER, {
-                        vm: data.vm,
                         openId: openId,
                         userId: userId,
                         errorHandle: true
                     }).then(resp => {
-                        data.vm.$indicator.close();
+                        Vue.$indicator.close();
                         resolve({});
                     }).catch(err => {
-                        data.vm.$indicator.close();
-                        data.vm.$toast(err);
+                        Vue.$indicator.close();
+                        Vue.$toast(err);
                         resolve({ path: '/' })
                         console.error(err);
                     })
@@ -168,20 +155,19 @@ const user = {
         /**
          * 获取用户信息
          * @param {Store} context module 
-         * @param {Object} data agentCode/openId/vm
+         * @param {Object} data userId/openId
          */
         [Type.GET_USER](context, data) {
             return new Promise((resolve, reject) => {
                 let config = {
-                    url: '/invite/getByOpenId.do',
                     errorHandle: data.errorHandle,
-                    data: {
+                    params: {
                         openId: data.openId,
                         userId: data.userId
                     }
                 }
-                data.vm.axios(config).then(resp => {
-                    context.dispatch(Type.UPDATE_USER, { data: resp.data, vm: data.vm });
+                Vue.axios.get('/invite/getByOpenId.do', config).then(resp => {
+                    context.dispatch(Type.UPDATE_USER, { data: resp.data });
                     resolve(resp);
                 }).catch(err => {
                     reject(err);

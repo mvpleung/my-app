@@ -89,7 +89,7 @@ router.beforeEach((to, from, next) => {
     navigationBehavior(from, to);
     if (globalConfig.requireAuth && to.matched.some(r => r.meta.requireAuth)) { //判断该路由是否需要登录权限
         if (store.getters.isLogin) { //通过vuex state 判断是否登录
-            store.dispatch(Types.CHECK_USER_INFO, router.app).then(() => {
+            store.dispatch(Types.CHECK_USER_INFO).then(() => {
                 next();
             }).catch(err => {
                 console.error(err);
@@ -98,7 +98,7 @@ router.beforeEach((to, from, next) => {
             let query = to.query;
             query.openId = query.openId || from.query.openId;
             query.userId = query.userId || from.query.userId;
-            store.dispatch(Types.WAP_OAUTH, { vm: router.app, query: query, redirectUri: window.location.origin + '/#' + to.fullPath }).then(route => {
+            store.dispatch(Types.WAP_OAUTH, { query: query, redirectUri: window.location.origin + '/#' + to.fullPath }).then(route => {
                 if (route.path || route.name) {
                     let query = Object.assign({}, { redirectUri: to.fullPath }, route.query);
                     delete query.userId;

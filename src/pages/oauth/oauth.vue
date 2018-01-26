@@ -7,15 +7,17 @@
   </div>
 </template>
 <script>
+import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      query: this.$utils.getUrlVars(),
+      query: {},
       errorMsg: '',
       authFail: false //授权失败
     };
   },
   created() {
+    this.query = this.$utils.getUrlVars();
     window.addEventListener('touchstart', this.retry);
     this.init();
   },
@@ -32,21 +34,25 @@ export default {
       ) {
         this.authFail = false;
         //code、state都不为空，授权成功
-        this.axios({
-          url: '',
-          data: this.query,
-          errorHandle: true
-        })
+        this.axios
+          .get('v1/wx/userinfo', { params: this.query, errorHandle: true })
           .then(resp => {
             this.errorMsg = '';
             if (!this.$utils.isEmpty(this.query.redirectUri)) {
-              this.query.redirectUri = this.$utils.setUrlParams(
-                { openid: resp.data },
+              let userInfo = resp.user_info || {};
+              this.updateUser({ data: userInfo, vm: this });
+              let redirectUri = this.$utils.setUrlParams(
+                { openId: userInfo.openid },
                 this.query.redirectUri
               );
-              window.top.location.href = decodeURIComponent(
-                this.query.redirectUri
-              );
+              if (redirectUri) {
+                //兼容外链
+                if (redirectUri.startWith('http')) {
+                  window.top.location.href = redirectUri;
+                } else {
+                  this.$router.replace(redirectUri);
+                }
+              }
             } else {
               self.location = document.referrer;
             }
@@ -58,10 +64,12 @@ export default {
       } else {
         //重定向授权页
         const oatuhUri = {
-          wechat:
-            'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxcdac5baa79612a08&redirect_uri={0}&response_type=code&scope=snsapi_userinfo&state=vueapp#wechat_redirect',
-          alipay:
-            'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=wx78d66606fc848770&scope=auth_user&redirect_uri={0}'
+          wechat: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${
+            globalConfig.appid.wechat
+          }&redirect_uri={0}&response_type=code&scope=snsapi_userinfo&state=vueapp#wechat_redirect`,
+          alipay: `https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=${
+            globalConfig.appid.alipay
+          }&scope=auth_user&redirect_uri={0}`
         };
         var authUri = oatuhUri[globalConfig.navigator.ua];
         authUri &&
@@ -88,7 +96,8 @@ export default {
         link.click();
         link.remove();
       }
-    }
+    },
+    ...mapActions(['updateUser'])
   }
 };
 </script>

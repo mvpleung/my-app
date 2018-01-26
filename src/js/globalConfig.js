@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2017-07-20 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-01-18 15:09:20
+ * @Last Modified time: 2018-01-26 11:59:39
  */
 
 (function (window) {
@@ -18,7 +18,12 @@
       console: process.env.ENV_CONFIG === 'dev',
       navigator: {
         isWechat: navigator.userAgent.match(/(MicroMessenger)\/([\d\.]+)/i) !== null,
-        isAlipay: navigator.userAgent.match(/(AlipayClient)\/([\d\.]+)/i) !== null
+        isAlipay: navigator.userAgent.match(/(AlipayClient)\/([\d\.]+)/i) !== null,
+        isMobile: /mobile|table|ip(ad|hone|od)|android/i.test(navigator.userAgent)
+      },
+      appid: {
+        wechat: 'wxddda23f51a61e98e',
+        alipay: ''
       },
       requireAuth: true
     },
@@ -33,7 +38,8 @@
      */
     navigatorAgent() {
       if (!this.globalConfig.debug && !this.isValidNavigator()) {
-        window.top.location.href = `${location.origin}/#/404`;
+        // window.top.location.href = `${location.origin}/#/404`;
+        window.top.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=XXX&connect_redirect=1#wechat_redirect';
       }
     },
     /**
@@ -50,14 +56,29 @@
           return false;
         }
       }
-      // this.globalConfig.console && require('vconsole/dist/vconsole.min');
+      this.globalConfig.console && require('vconsole/dist/vconsole.min');
+    },
+    /**
+     * 获取UA
+     */
+    userAgent() {
+      if (this.globalConfig.navigator.isWechat) {
+        return 'wechat';
+      }
+      if (this.globalConfig.navigator.isAlipay) {
+        return 'alipay';
+      }
+      if (this.globalConfig.navigator.isMobile) {
+        return 'mobile';
+      }
+      return 'desktop';
     },
     /**
      * 初始化配置
      */
     initConfig() {
       this.globalConfig.requireAuth = this.globalConfig.requireAuth && this.isValidNavigator();
-      this.globalConfig.navigator.ua = this.globalConfig.navigator.isWechat ? 'wechat' : this.globalConfig.navigator.isAlipay ? 'alipay' : null;
+      this.globalConfig.navigator.ua = this.userAgent();
       this.logConfig();
       this.navigatorAgent();
     }

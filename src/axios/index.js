@@ -20,7 +20,6 @@ import Url from '@/axios/urls';
 store.dispatch(UPDATE_CONFIG, {
   url: Url
 });
-axios.defaults.method = 'post';
 // axios.defaults.withCredentials = true; //暂时屏蔽Http单实例
 axios.defaults.baseURL = Url.baseUrl;
 axios.defaults.timeout = 30000;
@@ -28,15 +27,10 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 let source = axios.CancelToken.source();
 axios.interceptors.request.use(
   config => {
+    console.log(config)
     !config.silence && store._vm.$indicator.open(); //config.silence:是否静默
-    config.method =
-      config.headers.common.Accept.indexOf('application/json') != -1
-        ? 'post'
-        : config.method;
-    // if (store.getters.isLogin) {
-    //     config.headers.Authorization = `token ${store.getters.token}`;
-    // }
-    let _configData = config.data || {};
+    let _configData = config.data || config.params || {};
+    _configData['platform'] = globalConfig.navigator.ua;
     if (
       config.method === 'post' &&
       config.headers.post &&
@@ -44,23 +38,17 @@ axios.interceptors.request.use(
     ) {
       //POST JSON字符串
       if (config.data instanceof FormData) {
-        _configData = {};
+        _configData = { [_configData.platform]: _configData.platform };
         config.data.forEach((value, key) => (_configData[key] = value));
       }
-      _configData['clientSource'] = 'wx'; //增加辨别是否是微商城来源
       config.data = JSON.stringify(_configData || {});
+    } else {
+      config.params && (config.params = _configData);
+      config.data && (config.data = _configData);
     }
     if (store.getters.debug) {
       console.log('[url:::]', config.url);
       console.log('[send:::]', _configData);
-      // console.log('send:::', JSON.stringify(_configData, (key, value) => {
-      //     if (key === 'file') {
-      //         return value && value !== '';
-      //     } else if (value && typeof value === 'string' && value.startWith('data:image/jpeg;base64')) {
-      //         return true;
-      //     }
-      //     return value;
-      // }));
     }
     config.cancelToken = source.token;
     return config;
@@ -86,18 +74,9 @@ axios.interceptors.response.use(
         response.config.response === true ? response : response.data
       );
     }
-    let msg = !response.data
-      ? '请求异常，请重试'
-      : response.data.code === '100' ||
-        (response.data.header && response.data.header.response_code === '0')
-        ? null
-        : response.data.msg ||
-          (response.data.header && response.data.header.response_msg
-            ? response.data.header.response_msg.default_msg
-            : '响应失败，请重试') ||
-          '响应失败，请重试';
+    let msg = !response.data ? '请求异常，请重试' : response.data.ret === 0 ? null : response.data.errmsg || '响应失败，请重试';
     if (msg) {
-      if (response.data && response.data.code === '400') {
+      if (response.data && response.data.ret === '400') {
         //100:success 200:warn 300:fail 400:logout
         source.cance(data.msg || '登录超时，请重新登录');
         store.dispatch(LOGOUT);
@@ -113,7 +92,7 @@ axios.interceptors.response.use(
       return Promise.reject({
         message: msg,
         data: (response.data || {}).data,
-        code: (response.data || {}).code
+        code: (response.data || {}).ret
       });
     }
     return response.config.response === true ? response : response.data;

@@ -8,11 +8,12 @@ var CopyWebpackPlugin = require('copy-webpack-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
+var HashedModuleIdsPlugin = require('webpack/lib/HashedModuleIdsPlugin')
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 var env = config.build[process.env.env_config + 'Env']
 
-var resolveApp = function(relativePath) {
+var resolveApp = function (relativePath) {
     return path.resolve(relativePath);
 }
 
@@ -31,6 +32,7 @@ var webpackConfig = merge(baseWebpackConfig, {
         publicPath: config.build.assetsPublicPath
     },
     plugins: [
+        new HashedModuleIdsPlugin(),
         // http://vuejs.github.io/vue-loader/en/workflow/production.html
         new webpack.DefinePlugin({
             'process.env': env,
@@ -74,8 +76,8 @@ var webpackConfig = merge(baseWebpackConfig, {
                 minifyJS: true,
                 minifyCSS: true,
                 minifyURLs: true
-                    // more options:
-                    // https://github.com/kangax/html-minifier#options-quick-reference
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
             },
             path: config.build.assetsPublicPath + config.build.assetsSubDirectory,
             // necessary to consistently work with multiple chunks via CommonsChunkPlugin
@@ -87,7 +89,7 @@ var webpackConfig = merge(baseWebpackConfig, {
         // split vendor js into its own file
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            minChunks: function(module, count) {
+            minChunks: function (module, count) {
                 // any required modules inside node_modules are extracted to vendor
                 return (
                     module.resource &&

@@ -9,6 +9,7 @@ var opn = require('opn')
 var path = require('path')
 var express = require('express')
 var webpack = require('webpack')
+var ProgressPlugin = require('webpack/lib/ProgressPlugin');
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
 
@@ -23,13 +24,26 @@ var proxyTable = config.dev.proxyTable
 var app = express()
 var compiler = webpack(webpackConfig)
 
+compiler.apply(new ProgressPlugin(function (percentage, msg, current, active, modulepath) {
+  if (process.stdout.isTTY && percentage < 1) {
+    process.stdout.cursorTo(0)
+    modulepath = modulepath ? ' …' + modulepath.substr(modulepath.length - 30) : ''
+    current = current ? ' ' + current : ''
+    active = active ? ' ' + active : ''
+    process.stdout.write((percentage * 100).toFixed(0) + '% ' + msg + current + active + modulepath + ' ')
+    process.stdout.clearLine(1)
+  } else if (percentage === 1) {
+    process.stdout.write('\n')
+  }
+}))
+
 var devMiddleware = require('webpack-dev-middleware')(compiler, {
   publicPath: webpackConfig.output.publicPath,
   quiet: true
 })
 
 var hotMiddleware = require('webpack-hot-middleware')(compiler, {
-  log: () => {}
+  log: () => { }
 })
 // force page reload when html-webpack-plugin template changes
 compiler.plugin('compilation', function (compilation) {
@@ -69,7 +83,7 @@ var readyPromise = new Promise(resolve => {
   _resolve = resolve
 })
 
-console.log('> Starting dev server...')
+// console.log('> Starting dev server...')
 devMiddleware.waitUntilValid(() => {
   console.log('> Listening at ' + uri + '\n')
   // when env is testing, don't need open it

@@ -35,7 +35,7 @@ Vue.config.errorHandler = function (err, vm, info) {
     console.error(err, info);
     MintUI.MessageBox(info, err.message);
 };
-
+window.Vue = Vue;
 new Vue({
     router,
     store,
