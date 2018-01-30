@@ -11,7 +11,7 @@ function resolve(dir) {
 module.exports = {
   devtool: process.env.NODE_ENV === 'production' ? 'cheap-module-source-map' : '',
   entry: {
-    app: ['./node_modules/amfe-flexible/index.js', './src/css/style.scss', './src/js/globalConfig.js', './src/main.js']
+    app: ['./src/css/style.scss', './src/js/globalConfig.js', './src/main.js']
   },
   output: {
     path: config.build.assetsRoot,
@@ -51,6 +51,14 @@ module.exports = {
         options: {
           limit: 10000,
           name: utils.assetsPath('img/[name].[hash:7].[ext]')
+        }
+      },
+      {
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: utils.assetsPath('media/[name].[hash:7].[ext]')
         }
       },
       {

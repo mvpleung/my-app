@@ -114,6 +114,10 @@ body {
     line-height: 1;
 }
 
+img { 
+    content: normal !important; 
+}
+
 ol,
 ul {
     list-style: none;
@@ -261,4 +265,15 @@ $brower-default-font-size: 16px !default;
 
     #{$property}: $pxValues;
     #{$property}: $remValues;
+}
+//处理 1px 边框
+@svg 1px-border {
+    @rect {
+        fill: var(--color, black);
+        width: 100%;
+        height: 100%;
+    }
+}
+.border_1px {
+	background: white svg(1px-border param(--color#00b1ff));
 }

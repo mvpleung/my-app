@@ -8,7 +8,6 @@ var CopyWebpackPlugin = require('copy-webpack-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
-var HashedModuleIdsPlugin = require('webpack/lib/HashedModuleIdsPlugin')
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 var env = config.build[process.env.env_config + 'Env']
@@ -32,7 +31,6 @@ var webpackConfig = merge(baseWebpackConfig, {
         publicPath: config.build.assetsPublicPath
     },
     plugins: [
-        new HashedModuleIdsPlugin(),
         // http://vuejs.github.io/vue-loader/en/workflow/production.html
         new webpack.DefinePlugin({
             'process.env': env,
