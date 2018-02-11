@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2017-07-20 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-01-26 11:59:39
+ * @Last Modified time: 2018-02-09 16:34:41
  */
 
 (function (window) {
@@ -22,7 +22,7 @@
         isMobile: /mobile|table|ip(ad|hone|od)|android/i.test(navigator.userAgent)
       },
       appid: {
-        wechat: 'wxddda23f51a61e98e',
+        wechat: 'wx838dfdda62928a01',
         alipay: ''
       },
       requireAuth: true
@@ -47,14 +47,14 @@
      */
     logConfig() {
       if (this.globalConfig.debug) {
-        console.log("%cNow You Can Console Log...", "color:red;font-size:18px;font-style:oblique;");
+        console.log('%cNow You Can Console Log...', 'color:red;font-size:18px;font-style:oblique;');
       } else {
         console.log = function () {
           return false;
-        }
+        };
         console.error = function () {
           return false;
-        }
+        };
       }
       this.globalConfig.console && require('vconsole/dist/vconsole.min');
     },
@@ -91,5 +91,5 @@
 
   }
   global.initConfig();
-  window.globalConfig = Object.assign({}, window.globalConfig || {}, global.globalConfig);
+  window.$globalConfig = Object.assign({}, window.$globalConfig || {}, global.globalConfig);
 })(window);

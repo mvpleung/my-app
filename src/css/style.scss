@@ -1,5 +1,4 @@
 @import url("//at.alicdn.com/t/font_352963_jvyeag6321sv2t9.css"); //阿里矢量图
-
 /* v2.0 | 20110126
   http://meyerweb.com/eric/tools/css/reset/ 
   License: none (public domain)
@@ -92,7 +91,14 @@ video {
     font-size: 100%;
     font: inherit;
     vertical-align: baseline;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
+
 
 /* HTML5 display-role reset for older browsers */
 
@@ -112,6 +118,14 @@ section {
 
 body {
     line-height: 1;
+}
+
+html,
+body {
+    margin: 0 auto;
+    padding: 0 auto;
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
 }
 
 ol,
@@ -137,19 +151,17 @@ table {
     border-spacing: 0;
 }
 
-.mint-cell {
-    .mint-cell-wrapper {
-        .mint-cell-text {
-            white-space: nowrap;
-        }
-    }
-}
-
-.mint-toast,
-.mint-toast.is-placemiddle,
-.mint-indicator,
-.mint-indicator-wrapper {
-    z-index: 9999 !important;
+[role="button"], input[type="button"], button { 
+  -webkit-box-sizing: content-box; 
+  box-sizing: content-box; 
+  background: none;
+  border: 0;
+  line-height: inherit;
+  overflow: visible;
+  padding: 0;
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 //去掉手机上点击时出现的阴影
@@ -161,22 +173,6 @@ a {
 
 .hide {
     display: none;
-}
-
-//去掉mint-cell的默认边框线
-.mint-cell {
-    .mint-cell-wrapper {
-        background: none;
-        border-bottom: 1px solid #E8E8E8;
-    }
-}
-
-.mint-cell:last-child {
-    background: none;
-}
-
-div .mint-cell:last-child {
-    background: none;
 }
 
 //修复弹层滚动穿透
@@ -198,6 +194,15 @@ div .mint-cell:last-child {
     font-size: 12px;
 }
 
+/*********color*********/
+.color-red {
+  color: rgb(255, 76, 83);
+}
+.color-gray {
+  color: gray;
+}
+
+/*********Scss**********/
 $brower-default-font-size: 16px !default;
 // px 转换 rem，单位 px
 @function px2rem($px) {
@@ -261,4 +266,15 @@ $brower-default-font-size: 16px !default;
 
     #{$property}: $pxValues;
     #{$property}: $remValues;
+}
+//处理 1px 边框
+@svg 1px-border {
+    @rect {
+        fill: var(--color, black);
+        width: 100%;
+        height: 100%;
+    }
+}
+.border_1px {
+	background: white svg(1px-border param(--color#00b1ff));
 }
