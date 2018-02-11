@@ -1,33 +1,52 @@
 <template>
-	<div class="register">
-		<!-- <div class="register_logo">
+  <div class="register">
+    <!-- <div class="register_logo">
 			<img class="logo" src="../../assets/" />
 		</div> -->
-		<div class="register_container">
-			<div class="register_container_shouji">
-				<i class="iconfont icon-shouji"></i>
-				<input type="tel" name="" id="" value="" v-model="mobile" v-verify="mobile" :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''" maxlength="11"/>
-			</div>
-			<div class="register_container_jianpan">
-				<i class="iconfont icon-jianpan"></i>
-				<input type="tel" name="" id="" value="" v-model="identifyingCode" v-verify="identifyingCode" maxlength="4"/>
-				<button :disabled="!verificationDisabled || time > 0" @click.stop.prevent="getVerification">{{ verification }}</button>
-			</div>
+    <div class="register_container">
+      <div class="register_container_shouji">
+        <i class="iconfont icon-shouji"></i>
+        <input type="tel"
+          name=""
+          id=""
+          value=""
+          v-model="mobile"
+          v-verify="mobile"
+          :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''"
+      
+          maxlength="11" />
+      </div>
+      <div class="register_container_jianpan">
+        <i class="iconfont icon-jianpan"></i>
+        <input type="tel"
+          name=""
+          id=""
+          value=""
+          v-model="identifyingCode"
+          v-verify="identifyingCode"
+          maxlength="4" />
+        <button :disabled="!verificationDisabled || time > 0"
+          @click.stop.prevent="getVerification">{{ verification }}</button>
+      </div>
 
-
-      		<!--<mt-field label="手机号码" type="tel" v-model="mobile" v-verify="mobile" :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''" placeholder="手机号码" :attr="{ maxlength: 11 }"></mt-field>-->
-			<!--<mt-field label="验证码" type="tel" v-model="identifyingCode" v-verify="identifyingCode" placeholder="输入验证码" :attr="{ maxlength: 4 }">
+      <!--<mt-field label="手机号码" type="tel" v-model="mobile" v-verify="mobile" :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''" placeholder="手机号码" :attr="{ maxlength: 11 }" />-->
+      <!--<mt-field label="验证码" type="tel" v-model="identifyingCode" v-verify="identifyingCode" placeholder="输入验证码" :attr="{ maxlength: 4 }">
 				<mt-button type="primary" :disabled="!verificationDisabled || time > 0" @click.stop.prevent="getVerification">{{ verification }}</mt-button>
 			</mt-field>-->
-		</div>
-		<div class="register_footer">
-			<div class="register_footer_agreement">
-				点击注册，即表示您同意<router-link to="/agreement">用户协议</router-link>
-			</div>
-			<mt-button class="registerButton" type="primary" size="large" :disabled="registerDisabled" @click="register">注册</mt-button>
-			<!--<div class="center-link"><router-link to="/register">注册用户</router-link></div>-->
-		</div>
-	</div>
+    </div>
+    <div class="register_footer">
+      <div class="register_footer_agreement">
+        点击注册，即表示您同意
+        <router-link to="/agreement">用户协议</router-link>
+      </div>
+      <mt-button class="registerButton"
+        type="primary"
+        size="large"
+        :disabled="registerDisabled"
+        @click="register">注册</mt-button>
+      <!--<div class="center-link"><router-link to="/register">注册用户</router-link></div>-->
+    </div>
+  </div>
 </template>
 
 <script>
@@ -120,9 +139,9 @@ export default {
           })
           .then(resp => {
             this.$router.replace({
-              path: this.$route.query.redirect
-                ? this.$route.query.redirect
-                : '/homePage'
+              path: this.$route.query.redirect ?
+                this.$route.query.redirect :
+                '/homePage'
             });
             // this.$store.dispatch(UPDATE_USER, 'token');
           })

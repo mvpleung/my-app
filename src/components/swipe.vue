@@ -3,15 +3,25 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 16:23:47 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-01 17:18:12
+ * @Last Modified time: 2018-02-09 15:18:22
  */
 <template>
   <div class="page-swipe">
-    <mt-swipe v-if="bannerData.length > 0" @change="handleChange" :class="{'swipe-title': swipeTitle}" :speed="speed" :auto="auto" :defaultIndex="defaultIndex" :continuous="continuous" :showIndicators="showIndicators">
-      <mt-swipe-item v-for="(item, index) in bannerData" :key="index">
-        <div class="slide" @click="$emit('item-click', item, index)">
+    <mt-swipe v-if="bannerData.length > 0"
+      @change="handleChange"
+      :class="{'swipe-title': swipeTitle}"
+      :speed="speed"
+      :auto="auto"
+      :defaultIndex="defaultIndex"
+      :continuous="continuous"
+      :showIndicators="showIndicators">
+      <mt-swipe-item v-for="(item, index) in bannerData"
+        :key="index">
+        <div class="slide"
+          @click="$emit('item-click', item, index)">
           <img :src="item[imgKey]" />
-          <div class="title" v-if="!$utils.isEmpty(item[titleKey])">{{ item[titleKey] }}</div>
+          <div class="title"
+            v-if="!$utils.isEmpty(item[titleKey])">{{ item[titleKey] }}</div>
         </div>
       </mt-swipe-item>
     </mt-swipe>

@@ -27,10 +27,9 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 let source = axios.CancelToken.source();
 axios.interceptors.request.use(
   config => {
-    console.log(config)
     !config.silence && store._vm.$indicator.open(); //config.silence:是否静默
     let _configData = config.data || config.params || {};
-    _configData['platform'] = globalConfig.navigator.ua;
+    _configData['platform'] = $globalConfig.navigator.ua;
     if (
       config.method === 'post' &&
       config.headers.post &&
@@ -39,7 +38,7 @@ axios.interceptors.request.use(
       //POST JSON字符串
       if (config.data instanceof FormData) {
         _configData = { [_configData.platform]: _configData.platform };
-        config.data.forEach((value, key) => (_configData[key] = value));
+        config.data.forEach((value, key) => _configData[key] = value);
       }
       config.data = JSON.stringify(_configData || {});
     } else {
@@ -99,9 +98,9 @@ axios.interceptors.response.use(
   },
   error => {
     let errMsg =
-      error.message && error.message.indexOf('timeout') !== -1
-        ? '请求超时，请重试'
-        : error.message;
+      error.message && error.message.indexOf('timeout') !== -1 ?
+        '请求超时，请重试' :
+        error.message;
     if (!(error.config && error.config.silence)) {
       //config.silence:是否静默
       store._vm.$indicator.close();

@@ -3,16 +3,28 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 15:27:15 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-01 17:29:59
+ * @Last Modified time: 2018-02-09 15:17:57
  */
 <template>
-  <a href="javascript:;" class="weui-grid" @click="onClick" :style="style">
-    <div class="weui-grid__icon" v-if="hasIconSlot || icon">
-      <slot name="icon"><img :src="icon" alt=""></slot>
+  <a href="javascript:;"
+    class="weui-grid"
+    @click="onClick"
+    :style="style">
+    <div class="weui-grid__icon"
+      v-if="hasIconSlot || icon">
+      <slot name="icon">
+        <img :src="icon"
+          alt="">
+      </slot>
     </div>
-    <p v-if="hasLabelSlot || label" class="weui-grid__label">
+    <p v-if="hasLabelSlot || label"
+      class="weui-grid__label">
       <slot name="label">
-        <span v-html="label"></span>
+        <span v-html="label" />
+        <template v-if="subLabel">
+          <br/>
+          <span v-html="subLabel" />
+        </template>
       </slot>
     </p>
     <slot></slot>
@@ -26,6 +38,10 @@ export default {
      * 标签文本
      */
     label: String,
+    /**
+     * 副标签文本
+     */
+    subLabel: String,
     /**
      * 图片地址
      */
@@ -65,12 +81,16 @@ export default {
       if (/^javas/.test(this.link) || !this.link) return;
       const useRouter =
         typeof this.link === 'object' ||
-        ($router && typeof this.link === 'string' && !/http/.test(this.link));
+        this.$router &&
+          typeof this.link === 'string' &&
+          !/http/.test(this.link);
       if (useRouter) {
         if (typeof this.link === 'object' && this.link.replace === true) {
-          $router.replace(this.link);
+          this.$router.replace(this.link);
         } else {
-          this.link === 'BACK' ? $router.go(-1) : $router.push(this.link);
+          this.link === 'BACK' ?
+            this.$router.go(-1) :
+            this.$router.push(this.link);
         }
       } else {
         window.location.href = this.link;
@@ -79,12 +99,10 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
-a {
+<style lang="scss">
+.weui-grid {
   text-decoration: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-.weui-grid {
   position: relative;
   float: left;
   padding: 20px 10px;
@@ -106,6 +124,10 @@ a {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+  }
+  .weui-grid__label span:last-child {
+    line-height: 2;
+    font-size: 80%;
   }
   .weui-grid__icon img {
     display: block;

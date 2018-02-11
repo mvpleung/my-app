@@ -3,12 +3,17 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 15:27:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-01 15:56:26
+ * @Last Modified time: 2018-02-09 15:18:05
  */
 <template>
   <div class="weui-grids">
     <slot name="grid">
-      <grid-item v-for="(item, key) in items" :key="key" :label="item[labelKey]" :icon="item[iconKey]" :link="item[linkKey]"></grid-item>
+      <grid-item v-for="(item, key) in items"
+        :key="key"
+        :label="item[labelKey]"
+        :subLabel="item[subLabelKey]"
+        :icon="item[iconKey]"
+        :link="item[linkKey]" />
     </slot>
   </div>
 </template>
@@ -33,6 +38,13 @@ export default {
     labelKey: {
       type: String,
       default: 'label'
+    },
+    /**
+     * subLabel 副标签取值key
+     */
+    subLabelKey: {
+      type: String,
+      default: 'subLabel'
     },
     /**
      * icon 标签取值key
@@ -70,7 +82,7 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .weui-grids {
   position: relative;
   overflow: hidden;
