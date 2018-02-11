@@ -1,20 +1,11 @@
 <template>
-  <div id="app">
-    <div v-if="$router.currentRoute.query.search === 'search'"
-      class="mint-searchbar">
-      <div class="mint-searchbar-inner">
-        <i class="mintui mintui-search"></i><input v-model="search"
-          type="search"
-          placeholder="搜索"
-          class="mint-searchbar-core"></div>
-      <a class="mint-searchbar-cancel"
-        style="display: none;">取消</a>
-    </div>
-    <keep-alive>
-      <router-view v-if="$router.currentRoute.meta.keepAlive"></router-view>
-    </keep-alive>
-    <router-view v-if="!$router.currentRoute.meta.keepAlive"></router-view>
-  </div>
+	<div id="app">
+		<div v-if="$router.currentRoute.query.search === 'search'" class="mint-searchbar"><div class="mint-searchbar-inner"><i class="mintui mintui-search"></i><input v-model="search" type="search" placeholder="搜索" class="mint-searchbar-core"></div><a class="mint-searchbar-cancel" style="display: none;">取消</a></div>
+		<keep-alive>
+			<router-view v-if="$router.currentRoute.meta.keepAlive"></router-view>
+		</keep-alive>
+		<router-view v-if="!$router.currentRoute.meta.keepAlive"></router-view>
+	</div>
 </template>
 
 <script>

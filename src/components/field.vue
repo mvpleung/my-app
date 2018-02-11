@@ -1,56 +1,56 @@
 <template>
-  <div class="field">
-    <mt-cell class="wx-field"
-      :title="title"
-      :label="label"
-      v-clickoutside="doCloseActive"
-      :class="[{
+	<div class="field">
+  <mt-cell
+    class="wx-field"
+    :title="title"
+    :label="label"
+    v-clickoutside="doCloseActive"
+    :class="[{
       'is-textarea': type === 'textarea',
       'is-notitle': !title,
       'error-label': error
     }]">
-      <textarea @change="$emit('change', currentValue)"
-        ref="textarea"
-        class="mint-field-core"
-        :placeholder="placeholder"
-        v-if="type === 'textarea'"
-        :rows="rows"
-        :disabled="disabled"
-        :readonly="readonly"
-        v-model="currentValue">
-      </textarea>
-      <input @change="$emit('change', currentValue)"
-        ref="input"
-        class="mint-field-core"
-        :placeholder="placeholder"
-        :number="type === 'number'"
-        v-else
-        :type="type"
-        @focus="active = true"
-        :disabled="disabled"
-        :readonly="readonly"
-        :value="currentValue"
-        @input="handleInput">
-      <div @click="handleClear"
-        class="mint-field-clear"
-        v-if="!disableClear"
-        v-show="currentValue && type !== 'textarea' && active">
-        <i class="mintui mintui-field-error"></i>
-      </div>
-      <span class="mint-field-state"
-        v-if="state"
-        :class="['is-' + state]">
-        <i class="mintui"
-          :class="['mintui-field-' + state]"></i>
-      </span>
-      <div class="mint-field-other">
-        <slot></slot>
-      </div>
-    </mt-cell>
-    <div class="lineerror"
-      v-if="error">
-      {{ error }}
+    <textarea
+      @change="$emit('change', currentValue)"
+      ref="textarea"
+      class="mint-field-core"
+      :placeholder="placeholder"
+      v-if="type === 'textarea'"
+      :rows="rows"
+      :disabled="disabled"
+      :readonly="readonly"
+      v-model="currentValue">
+    </textarea>
+    <input
+      @change="$emit('change', currentValue)"
+      ref="input"
+      class="mint-field-core"
+      :placeholder="placeholder"
+      :number="type === 'number'"
+      v-else
+      :type="type"
+      @focus="active = true"
+      :disabled="disabled"
+      :readonly="readonly"
+      :value="currentValue"
+      @input="handleInput">
+    <div
+      @click="handleClear"
+      class="mint-field-clear"
+      v-if="!disableClear"
+      v-show="currentValue && type !== 'textarea' && active">
+      <i class="mintui mintui-field-error"></i>
     </div>
+    <span class="mint-field-state" v-if="state" :class="['is-' + state]">
+      <i class="mintui" :class="['mintui-field-' + state]"></i>
+    </span>
+    <div class="mint-field-other">
+      <slot></slot>
+    </div>
+  </mt-cell>
+  <div class="lineerror" v-if="error">
+  		{{ error }}
+  </div>
   </div>
 </template>
 
@@ -72,10 +72,10 @@ import Clickoutside from '@/js/clickoutside';
  * @param {string} [state] - 表单校验状态样式，接受 error, warning, success
  *
  * @example
- * <mt-field v-model="value" label="用户名" />
- * <mt-field v-model="value" label="密码" placeholder="请输入密码" />
- * <mt-field v-model="value" label="自我介绍" placeholder="自我介绍" type="textarea" rows="4" />
- * <mt-field v-model="value" label="邮箱" placeholder="成功状态" state="success" />
+ * <mt-field v-model="value" label="用户名"></mt-field>
+ * <mt-field v-model="value" label="密码" placeholder="请输入密码"></mt-field>
+ * <mt-field v-model="value" label="自我介绍" placeholder="自我介绍" type="textarea" rows="4"></mt-field>
+ * <mt-field v-model="value" label="邮箱" placeholder="成功状态" state="success"></mt-field>
  */
 export default {
   name: 'field',
@@ -152,7 +152,7 @@ export default {
 </script>
 
 <style lang="scss">
-.field {
+.field{
   .wx-field {
     display: flex;
 
@@ -191,7 +191,7 @@ export default {
     }
 
     .mint-field-clear {
-      opacity: 0.2;
+      opacity: .2;
     }
 
     .mint-field-state {
@@ -234,20 +234,20 @@ export default {
     }
   }
   .lineerror {
-    background: rgb(255, 105, 127);
-    text-align: center;
-    padding: 8px;
-    color: white;
-    position: relative;
-    font-weight: 100;
-    font-size: 14px;
+  		background: rgb(255, 105, 127);
+  		text-align: center;
+  		padding: 8px;
+  		color: white;
+  		position: relative;
+  		font-weight: 100;
+  		font-size: 14px;
   }
   .lineerror:before {
-    position: absolute;
+		position: absolute;
     border-left: 9px solid transparent;
     border-right: 9px solid transparent;
     border-bottom: 9px solid rgb(255, 105, 127);
-    content: ' ';
+    content: " ";
     display: block;
     width: 0;
     height: 0;
