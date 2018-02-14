@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 15:27:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:18:05
+ * @Last Modified time: 2018-02-13 15:16:21
  */
 <template>
   <div class="weui-grids">
@@ -69,12 +69,13 @@ export default {
   computed: {
     /**
      * 列数
+     * @returns {Number}
      */
     column() {
       return this.cols || this.childrenSize;
     },
     hasSlot() {
-      return this.$slots.grid != null;
+      return this.$slots.grid !== null;
     }
   },
   components: {

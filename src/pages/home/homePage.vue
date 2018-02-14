@@ -1,8 +1,8 @@
 <template>
-   <div class="homePage">
-	   <p class="page-container">This is HomePage</p>
-     <p v-if="$store.getters.isLogin">{{JSON.stringify($store.getters.user)}}</p>
-   </div>
+  <div class="homePage">
+    <p class="page-container">This is HomePage</p>
+    <p v-if="$store.getters.isLogin">{{JSON.stringify($store.getters.user)}}</p>
+  </div>
 </template>
 
 <script>

@@ -6,7 +6,6 @@ import Field from './field';
 import Swipe from './swipe';
 import NumberButton from './number-button';
 
-
 export {
   GridView,
   GridItem,

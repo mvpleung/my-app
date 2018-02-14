@@ -1,7 +1,7 @@
 const Config = {
-  prod: 'http://pay81.phtonspark.com', //Production
-  uat: 'http://pay81.phtonspark.com', //UAT
-  sit: 'http://119.29.155.236', //SIT
+  prod: 'http://localhost:9000', //Production
+  uat: 'http://localhost:9000', //UAT
+  sit: 'http://localhost:9000', //SIT
   dev: 'http://localhost:9000' //DEV
 };
 

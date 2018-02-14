@@ -37,11 +37,21 @@ Vue.use(MintUI);
 Vue.use(VueAMap);
 VueAMap.initAMapApiLoader({
   key: '8e2319f84aab096dc2dab5745848ad78',
-  plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.Geolocation', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
+  plugin: [
+    'AMap.Autocomplete',
+    'AMap.PlaceSearch',
+    'AMap.Scale',
+    'AMap.Geolocation',
+    'AMap.OverView',
+    'AMap.ToolBar',
+    'AMap.MapType',
+    'AMap.PolyEditor',
+    'AMap.CircleEditor'
+  ]
 });
 
 Vue.config.productionTip = store.getters.debug;
-Vue.config.errorHandler = function (err, vm, info) {
+Vue.config.errorHandler = function(err, vm, info) {
   console.error(info, '\n', err);
   MintUI.MessageBox(info, err.message);
 };

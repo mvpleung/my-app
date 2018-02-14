@@ -1,5 +1,4 @@
-let UiTools = (function () {
-
+let UiTools = (function() {
   /**
    * 切换控件显示隐藏
    * @param {Element} el 节点
@@ -37,8 +36,10 @@ let UiTools = (function () {
   /**
    * 解决弹层滚动穿透
    */
-  let modalHelper = (function (bodyCls) {
-    let el, scrollTop, elCache = {};
+  let modalHelper = (function(bodyCls) {
+    let el,
+      scrollTop,
+      elCache = {};
     return {
       /**
        * 初始化
@@ -54,7 +55,7 @@ let UiTools = (function () {
        * 弹层打开之后调用
        * @param {String} selector 需要控制滚动的选择器
        */
-      afterOpen: function (selector) {
+      afterOpen(selector) {
         el = selector ? elCache[selector] || this.init(selector) : el;
         scrollTop = document.scrollingElement.scrollTop;
         el.classList.add(bodyCls);
@@ -64,8 +65,11 @@ let UiTools = (function () {
        * 弹层关闭之前调用
        * @param {String} selector 需要控制滚动的选择器
        */
-      beforeClose: function (selector) {
-        el = selector ? elCache[selector] || (elCache[selector] = document.querySelector(selector)) : el;
+      beforeClose(selector) {
+        el = selector ?
+          elCache[selector] ||
+            (elCache[selector] = document.querySelector(selector)) :
+          el;
         el.classList.remove(bodyCls);
         // scrollTop lost after set position:fixed, restore it back.
         document.scrollingElement.scrollTop = scrollTop;
@@ -80,4 +84,6 @@ let UiTools = (function () {
   };
 })();
 
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = UiTools : window.UnionPay = UiTools;
+typeof exports === 'object' && typeof module !== 'undefined' ?
+  module.exports = UiTools :
+  window.UnionPay = UiTools;

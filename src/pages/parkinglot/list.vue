@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-30 14:31:46 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:52
+ * @Last Modified time: 2018-02-13 15:38:54
  */
 <template>
   <div class="amap-wrapper">
@@ -41,7 +41,6 @@
 export default {
   name: 'parking-map',
   data() {
-    let self = this;
     return {
       mapStyle: {
         width: 400,
@@ -108,6 +107,8 @@ export default {
     },
     /**
      * 获取Marker内容
+     * @param {Number} i 下标
+     * @param {Number} currentIndex 当前下标
      */
     getMarkerContent(i, currentIndex) {
       return `<img src="http://webapi.amap.com/theme/v1.3/markers/n/mark_${
@@ -116,6 +117,7 @@ export default {
     },
     /**
      * 增加Marker
+     * @param {Array} pois 附近搜索列表
      */
     addMarkers(pois) {
       let latSum = 0,
@@ -137,10 +139,9 @@ export default {
     },
     /**
      * 搜索结果回调
+     * @param {Array} pois 附近搜索列表
      */
     onSearchResult(pois) {
-      let latSum = 0,
-        lngSum = 0;
       this.pois = pois;
       this.markers = [];
       if (pois.length > 0) {

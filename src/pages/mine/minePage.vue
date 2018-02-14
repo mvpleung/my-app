@@ -3,14 +3,13 @@
  * @Author: liangzc 
  * @Date: 2018-01-27 14:26:16 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:25
+ * @Last Modified time: 2018-02-13 17:09:33
  */
 <template>
   <div class="minepage">
     <div class="mine-infor">
       <div class="mine-head-img">
-        <img :src="$store.getters.user.wxHeadimg || require('@/assets/integral-img.png')"
-        />
+        <img :src="headImg" />
       </div>
       <div class="mine-nick-name">
         <span>测试</span>
@@ -107,6 +106,14 @@ export default {
     };
   },
   created() {},
+  compouted: {
+    headImg() {
+      return (
+        this.$store.getters.user.wxHeadimg ||
+        require('@/assets/integral-img.png')
+      );
+    }
+  },
   components: {
     GridView,
     GridItem,

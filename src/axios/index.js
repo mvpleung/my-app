@@ -12,7 +12,7 @@ import Url from '@/axios/urls';
 
 //  errorHandle：false  是否手动处理错误信息，为 true 时，不提示错误信息，需要手动实现 catch
 
-//  response: false  是否返回全部请求信息，为 true 时，返回response 信息，包括http 请求信息，为 false 时，仅返回 data 数据
+//  response: false  是否返回全部请求信息，为 true 时，返回response 信息，包括http 请求信息,为 false 时，仅返回 data 数据
 
 // })
 
@@ -38,7 +38,9 @@ axios.interceptors.request.use(
       //POST JSON字符串
       if (config.data instanceof FormData) {
         _configData = { [_configData.platform]: _configData.platform };
-        config.data.forEach((value, key) => _configData[key] = value);
+        config.data.forEach((value, key) => {
+          _configData[key] = value;
+        });
       }
       config.data = JSON.stringify(_configData || {});
     } else {
@@ -73,7 +75,11 @@ axios.interceptors.response.use(
         response.config.response === true ? response : response.data
       );
     }
-    let msg = !response.data ? '请求异常，请重试' : response.data.ret === 0 ? null : response.data.errmsg || '响应失败，请重试';
+    let msg = !response.data ?
+      '请求异常，请重试' :
+      response.data.ret === 0 ?
+        null :
+        response.data.errmsg || '响应失败，请重试';
     if (msg) {
       if (response.data && response.data.ret === '400') {
         //100:success 200:warn 300:fail 400:logout
@@ -118,6 +124,9 @@ axios.interceptors.response.use(
             path: '/login',
             query: { redirect: router.currentRoute.fullPath }
           });
+          break;
+        default:
+          break;
       }
     }
     return Promise.reject({ message: errMsg });

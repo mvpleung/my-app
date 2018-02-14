@@ -11,9 +11,7 @@
   },
   "eslint.autoFixOnSave": true,
   "eslint.options": {
-    "plugins": [
-      "html"
-    ]
+    "plugins": ["html"]
   },
   "eslint.validate": [
     "javascript",
@@ -31,15 +29,12 @@
   ],
   "emmet.syntaxProfiles": {
     "vue-html": "html",
-    "vue": [
-      "css",
-      "html",
-      "less"
-    ]
+    "vue": ["css", "html", "less"]
   },
   "prettier.singleQuote": true,
   "prettier.semi": true,
   "prettier.eslintIntegration": true,
+  "prettier.printWidth": 80,
   "vetur.format.defaultFormatter.html": "js-beautify-html",
   "vetur.format.defaultFormatterOptions": {
     "js-beautify-html": {

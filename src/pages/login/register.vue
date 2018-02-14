@@ -12,8 +12,6 @@
           value=""
           v-model="mobile"
           v-verify="mobile"
-          :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''"
-      
           maxlength="11" />
       </div>
       <div class="register_container_jianpan">
@@ -28,11 +26,6 @@
         <button :disabled="!verificationDisabled || time > 0"
           @click.stop.prevent="getVerification">{{ verification }}</button>
       </div>
-
-      <!--<mt-field label="手机号码" type="tel" v-model="mobile" v-verify="mobile" :state="!verificationDisabled && mobile!='' ?'error': verificationDisabled ? 'success' : ''" placeholder="手机号码" :attr="{ maxlength: 11 }" />-->
-      <!--<mt-field label="验证码" type="tel" v-model="identifyingCode" v-verify="identifyingCode" placeholder="输入验证码" :attr="{ maxlength: 4 }">
-				<mt-button type="primary" :disabled="!verificationDisabled || time > 0" @click.stop.prevent="getVerification">{{ verification }}</mt-button>
-			</mt-field>-->
     </div>
     <div class="register_footer">
       <div class="register_footer_agreement">
@@ -44,13 +37,11 @@
         size="large"
         :disabled="registerDisabled"
         @click="register">注册</mt-button>
-      <!--<div class="center-link"><router-link to="/register">注册用户</router-link></div>-->
     </div>
   </div>
 </template>
 
 <script>
-import { UPDATE_USER } from '@/store/types';
 export default {
   data() {
     return {
@@ -143,7 +134,6 @@ export default {
                 this.$route.query.redirect :
                 '/homePage'
             });
-            // this.$store.dispatch(UPDATE_USER, 'token');
           })
           .catch(err => {
             console.error(err);

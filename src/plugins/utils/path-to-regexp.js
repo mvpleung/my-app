@@ -8,18 +8,21 @@ module.exports = pathToRegexp;
  *
  * @type {RegExp}
  */
-var PATH_REGEXP = new RegExp([
-  // Match escaped characters that would otherwise appear in future matches.
-  // This allows the user to escape special characters that won't transform.
-  '(\\\\.)',
-  // Match Express-style parameters and un-named parameters with a prefix
-  // and optional suffixes. Matches appear as:
-  //
-  // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
-  // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
-  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
-  '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
-].join('|'), 'g');
+var PATH_REGEXP = new RegExp(
+  [
+    // Match escaped characters that would otherwise appear in future matches.
+    // This allows the user to escape special characters that won't transform.
+    '(\\\\.)',
+    // Match Express-style parameters and un-named parameters with a prefix
+    // and optional suffixes. Matches appear as:
+    //
+    // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
+    // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
+    // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
+    '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
+  ].join('|'),
+  'g'
+);
 
 /**
  * Parse a string for the raw tokens.
@@ -35,7 +38,7 @@ function parse(str) {
   var defaultDelimiter = '/';
   var res;
 
-  while ((res = PATH_REGEXP.exec(str)) != null) {
+  while ((res = PATH_REGEXP.exec(str)) !== null) {
     var m = res[0];
     var escaped = res[1];
     var offset = res.index;
@@ -62,7 +65,7 @@ function parse(str) {
       path = '';
     }
 
-    var partial = prefix != null && next != null && next !== prefix;
+    var partial = prefix !== null && next !== null && next !== prefix;
     var repeat = modifier === '+' || modifier === '*';
     var optional = modifier === '?' || modifier === '*';
     var delimiter = res[2] || defaultDelimiter;
@@ -76,7 +79,9 @@ function parse(str) {
       repeat: repeat,
       partial: partial,
       asterisk: Boolean(asterisk),
-      pattern: pattern ? pattern.replace(/([=!:$\/()])/g, '\\$1') : asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?'
+      pattern: pattern ?
+        pattern.replace(/([=!:$\/()])/g, '\\$1') :
+        asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?'
     });
   }
 
@@ -191,7 +196,12 @@ function tokensToRegExp(tokens, keys) {
   // match already ends with a slash, we remove it for consistency. The slash
   // is valid at the end of a path match, not in the middle. This is important
   // in non-ending mode, where "/test/" shouldn't match "/test//route".
-  route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?' + '$';
+  route =
+    (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) +
+    '(?:' +
+    delimiter +
+    '(?=$))?' +
+    '$';
 
   return new RegExp('^' + route, 'i');
 }
@@ -212,5 +222,5 @@ function pathToRegexp(path, keys) {
     return regexpToRegexp(path, /** @type {!Array} */ keys);
   }
 
-  return stringToRegexp( /** @type {string} */ path, /** @type {!Array} */ keys);
+  return stringToRegexp(/** @type {string} */ path, /** @type {!Array} */ keys);
 }

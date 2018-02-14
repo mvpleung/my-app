@@ -9,7 +9,7 @@
 .page-container {
   .mint-cell-wrapper {
     background: none;
-    border-bottom: 1px solid #E8E8E8;
+    border-bottom: 1px solid #e8e8e8;
     .mint-cell-title {
       .mint-cell-text {
         font-size: 15px;
@@ -78,7 +78,7 @@
     font-weight: 200;
     font-size: 15px;
   }
-  .page-bottom-right  {
+  .page-bottom-right {
     flex: 2;
     background: rgb(255, 76, 83);
     display: flex;
@@ -100,7 +100,7 @@
     font-size: 15px;
   }
   .mint-button--primary {
-      background: #ff4c53;
+    background: #ff4c53;
   }
 }
 
@@ -112,9 +112,9 @@
 }
 
 .mint-cell:last-child {
-    background: none;
+  background: none;
 }
 
 div .mint-cell:last-child {
-    background: none;
+  background: none;
 }

@@ -1,10 +1,9 @@
-module.exports = (function () {
-
+module.exports = (function() {
   // Browser environment sniffing
-  var inBrowser = typeof window !== 'undefined' && Object.prototype.toString.call(window) !== '[object Object]';
+  var inBrowser =
+    typeof window !== 'undefined' &&
+    Object.prototype.toString.call(window) !== '[object Object]';
 
-  // detect devtools
-  var devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
   // UA sniffing for working around browser-specific quirks
   var UA = inBrowser && window.navigator.userAgent.toLowerCase();
   var isIE9 = UA && UA.indexOf('msie 9.0') > 0;
@@ -24,7 +23,11 @@ module.exports = (function () {
     if (!node) return false;
     var doc = node.ownerDocument.documentElement;
     var parent = node.parentNode;
-    return doc === node || doc === parent || Boolean(parent && parent.nodeType === 1 && doc.contains(parent));
+    return (
+      doc === node ||
+      doc === parent ||
+      Boolean(parent && parent.nodeType === 1 && doc.contains(parent))
+    );
   }
 
   /**
@@ -114,18 +117,6 @@ module.exports = (function () {
   }
 
   /**
-   * Add event listener shorthand.
-   *
-   * @param {Element} el
-   * @param {String} event
-   * @param {Function} cb
-   * @param {Boolean} [useCapture]
-   */
-  function on(el, event, cb, useCapture) {
-    el.addEventListener(event, cb, useCapture);
-  }
-
-  /**
    * Remove event listener shorthand.
    *
    * @param {Element} el
@@ -168,7 +159,6 @@ module.exports = (function () {
       el.setAttribute('class', cls);
     }
   }
-
 
   /**
    * Add class with compatibility for IE & SVG
@@ -215,16 +205,21 @@ module.exports = (function () {
 
   /**
    * 查找Dom
-   * @param {*} el 
-   * @param {*} tagName 
+   * @param {*} el
+   * @param {*} tagNames
    */
   function findDom(el, tagNames) {
     let _el = el;
-    if (_el.tagName !== 'INPUT' && _el.tagName !== 'SELECT' && _el.tagName !== 'TEXTAREA') {
+    if (
+      _el.tagName !== 'INPUT' &&
+      _el.tagName !== 'SELECT' &&
+      _el.tagName !== 'TEXTAREA'
+    ) {
       tagNames = Array.isArray(tagNames) ? tagNames : [tagNames];
       for (let i = 0; i < tagNames.length; i++) {
         let item = tagNames[i];
-        _el = el.querySelector(`${item}[data-primary]`) || el.querySelector(item);
+        _el =
+          el.querySelector(`${item}[data-primary]`) || el.querySelector(item);
         if (_el) {
           break;
         }
@@ -243,6 +238,13 @@ module.exports = (function () {
     removeClass: removeClass,
     addClass: addClass,
     apply: apply,
-    findDom: findDom
+    findDom: findDom,
+    getAttr: getAttr,
+    after: after,
+    remove: remove,
+    prepend: prepend,
+    replace: replace,
+    on: on,
+    off: off
   };
 })();

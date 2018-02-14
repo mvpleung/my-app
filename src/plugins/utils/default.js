@@ -1,59 +1,83 @@
-let Utils = (function () {
-
+let Utils = (function() {
   /**########  属性工具 start ########*/
   /**
    * 日期格式化
+   * @param {String} fmt 日期格式
    */
-  Date.prototype.Format = function (fmt) { //author: meizz   
+  Date.prototype.Format = function(fmt) {
+    //author: meizz
     let o = {
-      'M+': this.getMonth() + 1, //月份   
-      'd+': this.getDate(), //日   
-      'h+': this.getHours(), //小时   
-      'm+': this.getMinutes(), //分   
-      's+': this.getSeconds(), //秒   
-      'q+': Math.floor((this.getMonth() + 3) / 3), //季度   
-      'S': this.getMilliseconds() //毫秒   
+      'M+': this.getMonth() + 1, //月份
+      'd+': this.getDate(), //日
+      'h+': this.getHours(), //小时
+      'm+': this.getMinutes(), //分
+      's+': this.getSeconds(), //秒
+      'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+      'S': this.getMilliseconds() //毫秒
     };
     if (/(y+)/.test(fmt))
-      fmt = fmt.replace(RegExp.$1, String(this.getFullYear()).substr(4 - RegExp.$1.length));
+      fmt = fmt.replace(
+        RegExp.$1,
+        String(this.getFullYear()).substr(4 - RegExp.$1.length)
+      );
     for (let k in o)
       if (new RegExp('(' + k + ')').test(fmt))
-        fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(String(o[k]).length));
+        fmt = fmt.replace(
+          RegExp.$1,
+          RegExp.$1.length === 1 ?
+            o[k] :
+            ('00' + o[k]).substr(String(o[k]).length)
+        );
     return fmt;
   };
 
   /**
    * 以某个字符开头
-   * @param {Object} str
+   * @param {Object} str 字符
    * @param {Object} ignoreCase 忽略大小写
+   *
+   * @returns {Boolean}
    */
-  String.prototype.startWith = function (str, ignoreCase) {
-    if (isEmpty(str) || this.length === 0 || str.length > this.length)
+  String.prototype.startWith = function(str, ignoreCase) {
+    if (isEmpty(str) || this.length === 0 || str.length > this.length) {
       return false;
-    if (ignoreCase && this.toUpperCase().substr(0, str.length) == str.toUpperCase() || !ignoreCase && this.substr(0, str.length) == str)
+    }
+    if (
+      ignoreCase &&
+        this.toUpperCase().substr(0, str.length) === str.toUpperCase() ||
+      !ignoreCase && this.substr(0, str.length) === str
+    ) {
       return true;
+    }
     return false;
-    return true;
   };
 
   /**
    * 以某个字符结尾
-   * @param {Object} str
+   * @param {Object} str 字符
    * @param {Object} ignoreCase 忽略大小写
+   *
+   * @returns {Boolean}
    */
-  String.prototype.endWith = function (str, ignoreCase) {
-    if (isEmpty(str) || this.length === 0 || str.length > this.length)
+  String.prototype.endWith = function(str, ignoreCase) {
+    if (isEmpty(str) || this.length === 0 || str.length > this.length) {
       return false;
-    if (ignoreCase && this.toUpperCase().substring(this.length - str.length) == str.toUpperCase() || !ignoreCase && this.substring(this.length - str.length) == str)
+    }
+    if (
+      ignoreCase &&
+        this.toUpperCase().substring(this.length - str.length) ===
+          str.toUpperCase() ||
+      !ignoreCase && this.substring(this.length - str.length) === str
+    ) {
       return true;
+    }
     return false;
-    return true;
   };
 
   /**
    * 占位符格式化
    */
-  String.prototype.format = function (argus) {
+  String.prototype.format = function(argus) {
     let arguArray = argus && Array.isArray(argus) ? argus : arguments,
       s = this;
     if (arguArray.length === 0) return this;
@@ -62,13 +86,13 @@ let Utils = (function () {
     return s;
   };
 
-  Array.prototype.remove = function (val) {
+  Array.prototype.remove = function(val) {
     let index = this.indexOf(val);
     if (index > -1) {
       this.splice(index, 1);
     }
   };
-  Array.prototype.removeIndex = function (index) {
+  Array.prototype.removeIndex = function(index) {
     if (index > -1) {
       this.splice(index, 1);
     }
@@ -76,27 +100,36 @@ let Utils = (function () {
   /**########  属性工具 end ########*/
 
   /**
-   * 是否为空 
+   * 是否为空
    * @param  {*}  value
    * @return {Boolean}
    */
   function isEmpty(value) {
-    return !value || value === undefined || trim(value) === '' || trim(value) === 'null' || value === '' || value.length === 0;
+    return (
+      !value ||
+      value === undefined ||
+      trim(value) === '' ||
+      trim(value) === 'null' ||
+      value === '' ||
+      value.length === 0
+    );
   }
 
   /**
-   * 去除空格 
-   * @param  {String}  str
+   * 去除空格
+   * @param  {String}  str 字符串
    * @return {String}
    */
   function trim(str) {
-    return str && !(str instanceof Object) ? String(str).replace(/(^\s+)|(\s+$)/g, '') : str;
+    return str && !(str instanceof Object) ?
+      String(str).replace(/(^\s+)|(\s+$)/g, '') :
+      str;
   }
 
   /**
    * check value type
-   * @param  {String}  type
-   * @param  {*}  val
+   * @param  {String}  type 类型
+   * @param  {*}  val  校验的值
    * @return {Boolean}
    */
   function is(type, val) {
@@ -113,23 +146,33 @@ let Utils = (function () {
     let reg = new RegExp(name + '=([^&]*)(&|$)');
     let r = (url || window.location.search.substr(1)).match(reg);
     if (r !== null) return decodeURIComponent(r[1]);
-    r = (url ? url.split('#')[1] || window.location.hash : window.location.hash).match(reg);
+    r = (url ?
+      url.split('#')[1] || window.location.hash :
+      window.location.hash
+    ).match(reg);
     if (r !== null) return decodeURIComponent(r[1]);
     return null;
   }
 
   /**
    * 获取Url全部参数
+   * @param {String} url 地址
    * @returns {Object}
    */
   function getUrlVars(url) {
-    let vars = {}, hash;
+    let vars = {},
+      hash;
     let getParam = url => {
-      let hashes = (url || window.location.search).slice((url || window.location.search).indexOf('?') + 1).split('&');
+      let hashes = (url || window.location.search)
+        .slice((url || window.location.search).indexOf('?') + 1)
+        .split('&');
       for (let i = 0; i < hashes.length; i++) {
         if (!isEmpty(hashes[i])) {
           hash = hashes[i].split('=');
-          hash[1] && (vars[hash[0]] = hash[1].endWith('/') ? hash[1].slice(0, hash[1].length - 1) : hash[1]);
+          hash[1] &&
+            (vars[hash[0]] = hash[1].endWith('/') ?
+              hash[1].slice(0, hash[1].length - 1) :
+              hash[1]);
         }
       }
     };
@@ -140,8 +183,8 @@ let Utils = (function () {
 
   /**
    * 移除URL中的参数
-   * @param {String} url 
-   * @param {String} name 
+   * @param {String} url url
+   * @param {String} name 参数key
    */
   function removeUrlParam(url, name) {
     if (!url) return url;
@@ -154,7 +197,10 @@ let Utils = (function () {
         obj[arr[i][0]] = arr[i][1];
       }
       delete obj[name];
-      let queryStr = JSON.stringify(obj).replace(/[\"\{\}]/g, '').replace(/\:/g, '=').replace(/\,/g, '&');
+      let queryStr = JSON.stringify(obj)
+        .replace(/[\"\{\}]/g, '')
+        .replace(/\:/g, '=')
+        .replace(/\,/g, '&');
       return querys[0] + (!isEmpty(queryStr) ? '?' + queryStr : '');
     }
     return url;
@@ -162,8 +208,9 @@ let Utils = (function () {
 
   /**
    * 设置UrlParams
-   * @param {Object} data 
-   * @param {String} url 非必填 
+   * @param {Object} data 参数对象
+   * @param {String} url 非必填
+   * @returns {String} 填充参数后的URL
    */
   function setUrlParams(data, url) {
     if (!data || isEmptyObject(data)) return;
@@ -177,7 +224,14 @@ let Utils = (function () {
       params.push(`${key}=${value}`);
     });
     newUrl = newUrl || urlArray[1] || '';
-    return urlArray[0] + split + newUrl + (newUrl.indexOf('?') != -1 ? `&${params.join('&')}` : `?${params.join('&')}`);
+    return (
+      urlArray[0] +
+      split +
+      newUrl +
+      (newUrl.indexOf('?') !== -1 ?
+        `&${params.join('&')}` :
+        `?${params.join('&')}`)
+    );
   }
 
   /**
@@ -199,7 +253,11 @@ let Utils = (function () {
    */
   function getSessionStorage(key, needDecipher) {
     try {
-      return JSON.parse(sessionStorage[key] && needDecipher ? deCipher(sessionStorage[key]) : sessionStorage[key]);
+      return JSON.parse(
+        sessionStorage[key] && needDecipher ?
+          deCipher(sessionStorage[key]) :
+          sessionStorage[key]
+      );
     } catch (e) {
       console.warn('SessionStorage.Parse:', '[key:', key, ']', e.message);
       return sessionStorage[key];
@@ -211,7 +269,7 @@ let Utils = (function () {
    * @param {String} key 键名
    * @param {*} value 要存入的数据
    * @param {Object} option 配置项
-   * 
+   *
    * @param {option} exp 过期时间，单位：秒
    * @param {option} needCipher 是否加密存储
    */
@@ -228,10 +286,13 @@ let Utils = (function () {
       } else {
         localStr = value instanceof Object ? JSON.stringify(value) : value;
       }
-      localStorage[key] = localStr && option && option.needCipher ? cipher(localStr) : localStr;
+      localStorage[key] =
+        localStr && option && option.needCipher ? cipher(localStr) : localStr;
       return true;
     } catch (e) {
-      alert('您的web浏览器不支持本地存储设置。在Safari中，最常见的原因是使用“私人浏览模式”或“无痕浏览”。有些设置可能无法保存或某些功能可能无法正常工作。');
+      alert(
+        '您的web浏览器不支持本地存储设置。在Safari中，最常见的原因是使用“私人浏览模式”或“无痕浏览”。有些设置可能无法保存或某些功能可能无法正常工作。'
+      );
       return false;
     }
   }
@@ -240,17 +301,27 @@ let Utils = (function () {
    * 获取local数据
    * @param {String} key 键名
    * @param {Object} option 配置项
-   * 
+   *
    * @param {option} exp 过期时间（是否超过此时间）
    * @param {option} force 是否强制删除已过期数据，true：已过期数据返回空
    * @param {option} needDecipher 是否需要解密存储的数据
-   * 
+   *
    * @return {*} 存在 exp : {data: value, time: 过期时间, expire: 是否过期} , 不存在 exp ： 原路返回
    */
   function getLocalStorage(key, option) {
     try {
-      let local = JSON.parse(localStorage[key] && option && option.needDecipher ? deCipher(localStorage[key]) : localStorage[key]);
-      if (option && typeof option.exp === 'number' && local && is('Object', local) && local.time) {
+      let local = JSON.parse(
+        localStorage[key] && option && option.needDecipher ?
+          deCipher(localStorage[key]) :
+          localStorage[key]
+      );
+      if (
+        option &&
+        typeof option.exp === 'number' &&
+        local &&
+        is('Object', local) &&
+        local.time
+      ) {
         local.expire = new Date().getTime() - local.time > option.exp * 1000;
         if (option.force && local.expire) {
           return null;
@@ -275,15 +346,16 @@ let Utils = (function () {
     let result;
     try {
       result = JSON.parse(jsonStr);
-    } catch (error) {
-
-    }
+    } catch (error) {}
     if (!result) {
       result = replaceAll(jsonStr, '\\[|\\]', ''); //过滤数组
       result = result.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-      result = result.replace(/\s*('|"|)([\w\-]+)('|"|)\s*\:(("|')[^"\\\n\r]*("|')|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/ig, ']:]');
+      result = result.replace(
+        /\s*('|"|)([\w\-]+)('|"|)\s*\:(("|')[^"\\\n\r]*("|')|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/gi,
+        ']:]'
+      );
       result = result.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-      result = result.replace(/\s*('|"|)([\w\-]+)('|"|)\s*/ig, ']');
+      result = result.replace(/\s*('|"|)([\w\-]+)('|"|)\s*/gi, ']');
       if (/^[\],:{}\s]*$/.test(result)) {
         try {
           return eval('(' + jsonStr + ')');
@@ -306,7 +378,9 @@ let Utils = (function () {
    * @return {String}
    */
   function replaceAll(value, replaceStr, replaceValue) {
-    return isEmpty(value) ? value : value.replace(new RegExp(replaceStr, 'gm'), replaceValue);
+    return isEmpty(value) ?
+      value :
+      value.replace(new RegExp(replaceStr, 'gm'), replaceValue);
   }
 
   /**
@@ -321,10 +395,19 @@ let Utils = (function () {
     }
     if (is('String', unixTime)) {
       if (unixTime.length === 8) {
-        unixTime = unixTime.substring(0, 4) + '-' + unixTime.substring(4, 6) + '-' + unixTime.substring(6, 8);
+        unixTime =
+          unixTime.substring(0, 4) +
+          '-' +
+          unixTime.substring(4, 6) +
+          '-' +
+          unixTime.substring(6, 8);
       }
     }
-    return !unixTime || isEmpty(unixTime) ? '' : !/^(\+|-)?\d+($|\.\d+$)/.test(unixTime) ? unixTime : new Date(unixTime).Format(pattern ? pattern : 'yyyy-MM-dd');
+    return !unixTime || isEmpty(unixTime) ?
+      '' :
+      !/^(\+|-)?\d+($|\.\d+$)/.test(unixTime) ?
+        unixTime :
+        new Date(unixTime).Format(pattern ? pattern : 'yyyy-MM-dd');
   }
 
   /**
@@ -350,7 +433,7 @@ let Utils = (function () {
   /**
    * 计算周岁
    * @param {Object} dateStr 日期字符串或日期对象
-   * @param {Date} today
+   * @param {Date|String|Number} today 今天
    * @return {Number}
    */
   function calcAge(dateStr, today) {
@@ -359,18 +442,23 @@ let Utils = (function () {
     let r = dateStr.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);
     if (isEmpty(r)) return 0;
     let birth = new Date(r[1], r[3] - 1, r[4]);
-    if (birth.getFullYear() == r[1] && birth.getMonth() + 1 == r[3] && birth.getDate() == r[4]) {
-      today = isEmpty(today) ? new Date() : typeof today === 'object' ? today : new Date(today);
+    if (
+      birth.getFullYear() === r[1] &&
+      birth.getMonth() + 1 === r[3] &&
+      birth.getDate() === r[4]
+    ) {
+      today = isEmpty(today) ?
+        new Date() :
+        typeof today === 'object' ? today : new Date(today);
       let age = today.getFullYear() - r[1];
       if (today.getMonth() > birth.getMonth()) {
         return age;
       }
-      if (today.getMonth() == birth.getMonth()) {
+      if (today.getMonth() === birth.getMonth()) {
         if (today.getDate() >= birth.getDate()) {
           return age;
-        } 
+        }
         return age - 1;
-        
       }
       if (today.getMonth() < birth.getMonth()) {
         return age - 1;
@@ -382,17 +470,27 @@ let Utils = (function () {
 
   /**
    * 比较日期大小
-   * @param {Object} date1 
-   * @param {Object} date2
-   * 
-   * @return {Boolean} 
+   * @param {Object} date1 日期1
+   * @param {Object} date2 日期2
+   *
+   * @return {Boolean} true:date1>date2 false:date2>date1
    */
   function compareDate(date1, date2) {
     if (!date1 || !date2) {
       return false;
     }
-    let dateTime1 = date1 instanceof Date ? date1.getTime() : /^(\+|-)?\d+($|\.\d+$)/.test(date1) ? date1 : new Date(date1).getTime();
-    let dateTime2 = date2 instanceof Date ? date2.getTime() : /^(\+|-)?\d+($|\.\d+$)/.test(date2) ? date2 : new Date(date2).getTime();
+    let dateTime1 =
+      date1 instanceof Date ?
+        date1.getTime() :
+        /^(\+|-)?\d+($|\.\d+$)/.test(date1) ?
+          date1 :
+          new Date(date1).getTime();
+    let dateTime2 =
+      date2 instanceof Date ?
+        date2.getTime() :
+        /^(\+|-)?\d+($|\.\d+$)/.test(date2) ?
+          date2 :
+          new Date(date2).getTime();
     return dateTime1 > dateTime2;
   }
 
@@ -439,11 +537,18 @@ let Utils = (function () {
       console.warn('如需使用 pathToRegexp ，请使用模块化加载 Utils 模块 ！');
       return null;
     }
-    this.regexp = this.regexp || require('./path-to-regexp.min');
+    Utils.regexp = Utils.regexp || require('./path-to-regexp.min');
     let keys = [],
-      reg = this.regexp(prefix, keys),
+      reg = Utils.regexp(prefix, keys),
       indexof = window.location.hash.indexOf('?'),
-      execArray = reg.exec(path || window.location.hash.substring(1, indexof === -1 ? window.location.hash.length : indexof)) || [],
+      execArray =
+        reg.exec(
+          path ||
+            window.location.hash.substring(
+              1,
+              indexof === -1 ? window.location.hash.length : indexof
+            )
+        ) || [],
       params = {};
     keys.forEach((item, index) => {
       params[item.name] = execArray[index + 1];
@@ -456,7 +561,7 @@ let Utils = (function () {
    * @param {Object} object The object to query.
    * @param {Array|string} path The path of the property to get.
    * @param {*} [defaultValue] The value returned for `undefined` resolved values.
-   * @returns {*} Returns the resolved value. 
+   * @returns {*} Returns the resolved value.
    */
   function get(object, path, defaultValue) {
     if (typeof require === 'undefined') {
@@ -464,8 +569,8 @@ let Utils = (function () {
       return null;
     }
     try {
-      this.lodash = this.lodash || require('lodash');
-      return this.lodash.get(object, path, defaultValue);
+      Utils.lodash = Utils.lodash || require('lodash');
+      return Utils.lodash.get(object, path, defaultValue);
     } catch (error) {
       console.error(error);
       return null;
@@ -477,6 +582,7 @@ let Utils = (function () {
    * @param {String} path 取值路径
    * @param {Boolean} create 不存在是否创建
    * @param {Function} cb 回调
+   * @returns {Object} 返回属性
    */
   function attribute(obj, path, create, cb) {
     if (typeof create === 'function') {
@@ -492,16 +598,15 @@ let Utils = (function () {
         cb && cb(atr, obj[atr]);
         obj = obj[atr];
         return '';
-      } 
+      }
       obj = _obj;
-      
     });
     return obj;
   }
 
   /**
    * 转换驼峰命名法
-   * @param {Object} value
+   * @param {Object} value 需要转换的字符串
    * @param {Boolean} reverse 反转（互转）
    */
   function camelCase(value, reverse) {
@@ -509,16 +614,21 @@ let Utils = (function () {
     if (reverse) {
       return value.replace(/([A-Z])/g, '_$1').toLowerCase();
     }
-    let result = value.replace(/\d/gm, '').replace(/[-|_](\w)/g, function ($0, $1) {
-      return $1.toUpperCase();
-    }).replace(/[-|_]/gm, '');
-    return isEmpty(result) ? value : result.substring(0, 1).toLowerCase() + result.substring(1);
+    let result = value
+      .replace(/\d/gm, '')
+      .replace(/[-|_](\w)/g, function($0, $1) {
+        return $1.toUpperCase();
+      })
+      .replace(/[-|_]/gm, '');
+    return isEmpty(result) ?
+      value :
+      result.substring(0, 1).toLowerCase() + result.substring(1);
   }
 
   /**
    * 延迟触发
-   * @param {*} el 
-   * @param {Object} options 
+   * @param {*} el dom节点
+   * @param {Object} options
    */
   function koala(el, options) {
     if (isEmpty(el)) return;
@@ -529,23 +639,22 @@ let Utils = (function () {
     let events = ['keydown', 'keypress', 'keyup'];
     let opts = Object.assign(defaults, defaults, options);
 
-    let koala = function (el, func) {
-      return function (event) {
-        let koala = el.getAttribute('koala-timer');
-        if (typeof koala !== 'undefined' && koala !== null) {
-          let now = (new Date()).getTime();
-          if (now - koala.time < opts.delay) {
-            clearTimeout(koala.timer);
+    let _koala = function(el, func) {
+      return function(event) {
+        let $koala = el.getAttribute('koala-timer');
+        if (typeof $koala !== 'undefined' && $koala !== null) {
+          let now = new Date().getTime();
+          if (now - $koala.time < opts.delay) {
+            clearTimeout($koala.timer);
           }
         }
-        let _this = this;
-        let timer = setTimeout(function () {
-          func.call(_this, event);
+        let timer = setTimeout(() => {
+          func.call(this, event);
           el.removeAttribute('koala-timer');
         }, opts.delay);
         el.setAttribute('koala-timer', {
           timer: timer,
-          time: (new Date()).getTime()
+          time: new Date().getTime()
         });
       };
     };
@@ -556,7 +665,7 @@ let Utils = (function () {
         if (opts[e] && typeof opts[e] === 'function') {
           if (that !== null) {
             let _el = that.$refs ? that.$refs.input : that;
-            _el.addEventListener(e, koala(_el, opts[e]));
+            _el.addEventListener(e, _koala(_el, opts[e]));
           }
         }
       });
@@ -581,16 +690,18 @@ let Utils = (function () {
    * @param {Function} func 回调函数
    */
   function forEach(arr, func) {
-    if (isEmpty(arr)) return;
+    if (isEmpty(arr) || !func) return;
     if (Array.isArray(arr)) {
       for (let i = 0; i < arr.length; i++) {
-        let ret = func.call(this, arr[i], i); //回调函数
-        if (typeof ret !== 'undefined' && (ret === null || ret === false)) break;
+        let ret = func(arr[i], i); //回调函数
+        if (typeof ret !== 'undefined' && (ret === null || ret === false))
+          break;
       }
     } else {
       for (let item in arr) {
-        let ret = func.call(this, arr[item], item); //回调函数
-        if (typeof ret !== 'undefined' && (ret === null || ret === false)) break;
+        let ret = func(arr[item], item); //回调函数
+        if (typeof ret !== 'undefined' && (ret === null || ret === false))
+          break;
       }
     }
   }
@@ -625,12 +736,19 @@ let Utils = (function () {
    * @param {Number} length 长度
    */
   function revHash(data, length) {
-    return window.nj_crypto_md5 || (window.nj_crypto_md5 = crypto().createHash('md5').update(data || '').digest('hex').slice(0, length || 10));
+    return (
+      window.nj_crypto_md5 ||
+      (window.nj_crypto_md5 = crypto()
+        .createHash('md5')
+        .update(data || '')
+        .digest('hex')
+        .slice(0, length || 10))
+    );
   }
 
   /**
    * 使用 aes192 加密数据
-   * @param {String} data 加密的数据 
+   * @param {String} data 加密的数据
    * @param {String} pwd 加密的密码(默认为系统提供)
    */
   function cipher(data, pwd) {
@@ -643,7 +761,7 @@ let Utils = (function () {
 
   /**
    * 使用 aes192 解密数据
-   * @param {String} encrypted 需要解密的加密串 
+   * @param {String} encrypted 需要解密的加密串
    * @param {String} pwd 解密的密码(默认为系统提供)
    */
   function deCipher(encrypted, pwd) {
@@ -662,13 +780,13 @@ let Utils = (function () {
       console.warn('deepAssign 方法依赖模块化加载环境 ！');
       return null;
     }
-    this.lodash = this.lodash || require('lodash');
-    return this.lodash.defaultsDeep.apply(this, arguments);
+    Utils.lodash = Utils.lodash || require('lodash');
+    return Utils.lodash.defaultsDeep.apply(this, arguments);
   }
 
   /**
    * 深拷贝
-   * @param {Object} source 
+   * @param {Object} source
    */
   function deepClone(source) {
     if (!source && typeof source !== 'object') {
@@ -691,13 +809,13 @@ let Utils = (function () {
   /**
    * 延迟触发
    * @param {Function} func 回调函数
-   * @param {Number} wait 等待时间 
+   * @param {Number} wait 等待时间
    * @param {Boolean} immediate 不等待上次结束，重新触发等待时间
    */
   function debounce(func, wait, immediate) {
     let timeout, args, context, timestamp, result;
 
-    const later = function () {
+    const later = function() {
       // 据上一次触发时间间隔
       const last = Number(new Date()) - timestamp;
 
@@ -714,7 +832,7 @@ let Utils = (function () {
       }
     };
 
-    return function (...args) {
+    return function(...args) {
       context = this;
       timestamp = Number(new Date());
       const callNow = immediate && !timeout;
@@ -739,17 +857,19 @@ let Utils = (function () {
 
   /**
    * 千分位分割
-   * @param {Number} num 数字 
+   * @param {Number} num 数字
    */
   function toThousandslsFilter(num) {
-    return (Number(num) || 0).toString().replace(/^-?\d+/g, m => m.replace(/(?=(?!\b)(\d{3})+$)/g, ','));
+    return (Number(num) || 0)
+      .toString()
+      .replace(/^-?\d+/g, m => m.replace(/(?=(?!\b)(\d{3})+$)/g, ','));
   }
 
   /**
    * 重置Model对象
-   * @param {Object|Array} model
+   * @param {Object|Array} model model对象
    * @param {String|Array} ignore 忽略字段
-   * @param {Boolean} deep 是否深度重置（内嵌对象重置） 
+   * @param {Boolean} deep 是否深度重置（内嵌对象重置）
    */
   function resetModel(model, ignore, deep) {
     if (typeof ignore === 'boolean') {
@@ -763,7 +883,9 @@ let Utils = (function () {
         if (is('Object', value)) {
           deep ? resetModel(value, ignore) : model[key] = {};
         } else if (Array.isArray(value)) {
-          deep ? value.forEach(vl => resetModel(vl, ignore)) : model[key] = [];
+          deep ?
+            value.forEach(vl => resetModel(vl, ignore)) :
+            model[key] = [];
         } else {
           model[key] = '';
         }
@@ -835,4 +957,6 @@ let Utils = (function () {
   };
 })();
 
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = Utils : window.UnionPay = Utils;
+typeof exports === 'object' && typeof module !== 'undefined' ?
+  module.exports = Utils :
+  window.UnionPay = Utils;
