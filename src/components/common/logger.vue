@@ -1,7 +1,6 @@
 <template>
   <div class="logger-container">
-    <mt-switch v-model="config.debug">日志开关{{config.debug}}</mt-switch>
-    <mt-switch v-model="config.console">控制台开关{{config.console}}</mt-switch>
+    <mt-switch v-model="config.console">日志开关{{config.console}}</mt-switch>
     <mt-field placeholder="手动输入路径跳转"
       v-model="path"
       disableClear>

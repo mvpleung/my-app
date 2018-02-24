@@ -116,8 +116,10 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title || to.params.title || document.title :
     document.setTitle(to.meta.title || to.params.title || document.title);
   navigationBehavior(from, to);
-  if ($globalConfig.requireAuth && to.matched.some(r => r.meta.requireAuth)) {
-    //判断该路由是否需要登录权限
+  if (
+    ($globalConfig.navigator.isWechat || $globalConfig.navigator.isAlipay) && //判断该路由是否需要登录权限
+    to.matched.some(r => r.meta.requireAuth)
+  ) {
     if (store.getters.isLogin) {
       //通过vuex state 判断是否登录
       store

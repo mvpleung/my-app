@@ -46,12 +46,8 @@ export default {
           .then(resp => {
             this.errorMsg = '';
             if (!this.$utils.isEmpty(this.query.redirectUri)) {
-              let userInfo = resp.user_info || {};
-              this.updateUser(userInfo);
-              let redirectUri = this.$utils.setUrlParams(
-                { openId: userInfo.openid },
-                this.query.redirectUri
-              );
+              this.updateUser(resp.user_info || {});
+              const redirectUri = decodeURIComponent(this.query.redirectUri);
               if (redirectUri) {
                 //兼容外链
                 if (redirectUri.startWith('http')) {
@@ -70,13 +66,10 @@ export default {
           });
       } else {
         //重定向授权页
+        const { wechat, alipay } = this.$store.getters.appid;
         const oatuhUri = {
-          wechat: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${
-            $globalConfig.appid.wechat
-          }&redirect_uri={0}&response_type=code&scope=snsapi_userinfo&state=vueapp#wechat_redirect`,
-          alipay: `https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=${
-            $globalConfig.appid.alipay
-          }&scope=auth_user&redirect_uri={0}`
+          wechat: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wechat}&redirect_uri={0}&response_type=code&scope=snsapi_userinfo&state=vueapp#wechat_redirect`,
+          alipay: `https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=${alipay}&scope=auth_user&redirect_uri={0}`
         };
         var authUri = oatuhUri[$globalConfig.navigator.ua];
         authUri &&

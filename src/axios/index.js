@@ -38,19 +38,15 @@ axios.interceptors.request.use(
       //POST JSON字符串
       if (config.data instanceof FormData) {
         _configData = { [_configData.platform]: _configData.platform };
-        config.data.forEach((value, key) => {
-          _configData[key] = value;
-        });
+        config.data.forEach((value, key) => (_configData[key] = value));
       }
       config.data = JSON.stringify(_configData || {});
     } else {
       config.params && (config.params = _configData);
       config.data && (config.data = _configData);
     }
-    if (store.getters.debug) {
-      console.log('[url:::]', config.url);
-      console.log('[send:::]', _configData);
-    }
+    $globalConfig.console && console.log('[url:::]', config.url);
+    $globalConfig.console && console.log('[send:::]', _configData);
     config.cancelToken = source.token;
     return config;
   },
@@ -69,20 +65,18 @@ axios.interceptors.response.use(
   response => {
     !(response.config && response.config.silence) &&
       store._vm.$indicator.close();
-    if (store.getters.debug) {
+    $globalConfig.console &&
       console.log(
         '[response:::]',
         response.config.response === true ? response : response.data
       );
-    }
     let msg = !response.data ?
       '请求异常，请重试' :
       response.data.ret === 0 ?
         null :
         response.data.errmsg || '响应失败，请重试';
     if (msg) {
-      if (response.data && response.data.ret === '400') {
-        //100:success 200:warn 300:fail 400:logout
+      if (response.data && response.data.ret === '4') {
         source.cance(data.msg || '登录超时，请重新登录');
         store.dispatch(LOGOUT);
         router.replace({
@@ -112,9 +106,7 @@ axios.interceptors.response.use(
       store._vm.$indicator.close();
       !(error.config || {}).errorHandle && store._vm.$toast(errMsg);
     }
-    if (store.getters.debug) {
-      console.error(error);
-    }
+    $globalConfig.console && console.error(error);
     if (error.response) {
       switch (error.response.status) {
         case 401:

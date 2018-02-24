@@ -53,7 +53,7 @@ module.exports = {
     'no-labels': 2, //禁止使用空label
     'no-extra-bind': 2, //禁止不必要的函数绑定
     'no-extra-boolean-cast': 2, //禁止不必要的bool转换
-    'no-extra-parens': [2, 'all', { ignoreJSX: 'all', returnAssign: false }], //禁止非必要的括号
+    'no-extra-parens': [2, 'all', { returnAssign: false, ignoreJSX: 'all' }], //禁止非必要的括号
     'no-extra-semi': 2, //禁止多余的分号
     'no-fallthrough': 1, //禁止switch穿透
     'no-func-assign': 2, //禁止重复的函数声明
@@ -89,19 +89,21 @@ module.exports = {
     'no-redeclare': 2, //禁止重复声明变量
     'no-spaced-func': 2, //函数调用时 函数名与()之间不能有空格
     'no-unused-vars': [
+      //不能有声明后未被使用的变量或参数
       2,
       {
         vars: 'all',
         // args: 'after-used'
         args: 'none'
       }
-    ], //不能有声明后未被使用的变量或参数
+    ],
     'dot-notation': [
+      //避免不必要的方括号
       0,
       {
         allowKeywords: true
       }
-    ], //避免不必要的方括号
+    ],
     'operator-linebreak': [2, 'after'], //换行时运算符在行尾还是行首
     'space-after-keywords': [0, 'always'], //关键字后面是否要空一格
     'space-infix-ops': 2, //中缀操作符周围要不要有空格

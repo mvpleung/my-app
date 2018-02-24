@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:49 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 14:55:11
+ * @Last Modified time: 2018-02-24 16:45:06
  */
 import {
   UPDATE_CONFIG,
@@ -14,15 +14,20 @@ import {
 } from '@/store/types.js';
 const global = {
   state: {
-    debug: $globalConfig.debug,
-    config: $globalConfig, //全局配置
+    //全局配置
+    config: {
+      appid: {
+        wechat: 'wx838dfdda62928a01',
+        alipay: ''
+      }
+    },
     scrollMap: {}, //滚动记录
     routeChain: [], //存储路由跳转信息，用于前进 or 后退识别
     pageDirection: 'fade' //路由切换动画（暂时屏蔽）
   },
   getters: {
     url: state => state.config.url || {},
-    debug: state => state.debug,
+    appid: state => state.config.appid || {},
     chainLength: state => state.routeChain.length,
     scrollMap: state => state.scrollMap,
     routeChain: state => state.routeChain,
@@ -33,8 +38,7 @@ const global = {
      * 更新全局配置
      */
     [UPDATE_CONFIG]: (state, config) => {
-      Object.assign($globalConfig, $globalConfig, config || {});
-      state.config = $globalConfig;
+      state.config = Object.assign(state.config, state.config, config || {});
     },
     /**
      * 增加路由记录缓存

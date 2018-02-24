@@ -50,7 +50,6 @@ VueAMap.initAMapApiLoader({
   ]
 });
 
-Vue.config.productionTip = store.getters.debug;
 Vue.config.errorHandler = function(err, vm, info) {
   console.error(info, '\n', err);
   MintUI.MessageBox(info, err.message);

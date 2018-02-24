@@ -1,10 +1,3 @@
-/*
- * 日期选择器
- * @Author: liangzc 
- * @Date: 2018-02-01 17:45:30 
- * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:18:11
- */
 <template>
   <mt-popup v-model="visible"
     :closeOnClickModal="closeOnClickModal"

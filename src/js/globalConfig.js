@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2017-07-20 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-24 10:11:07
+ * @Last Modified time: 2018-02-24 17:46:43
  */
 
 (function(window) {
@@ -11,35 +11,15 @@
     /**
      * 全局配置类
      */
-    globalConfig: {
-      prod: process.env.ENV_CONFIG === 'prod', //生产模式
-      uat: process.env.ENV_CONFIG === 'uat', //UAT模式
-      debug: process.env.ENV_CONFIG === 'dev', //是否为debug模式（开发环境才打印日志）
-      console:
-        process.env.ENV_CONFIG === 'dev' || process.env.ENV_CONFIG === 'sit',
-      navigator: {
-        isWechat:
-          navigator.userAgent.match(/(MicroMessenger)\/([\d\.]+)/i) !== null,
-        isAlipay:
-          navigator.userAgent.match(/(AlipayClient)\/([\d\.]+)/i) !== null,
-        isMobile: /mobile|table|ip(ad|hone|od)|android/i.test(
-          navigator.userAgent
-        )
-      },
-      appid: {
-        wechat: 'wx838dfdda62928a01',
-        alipay: ''
-      },
-      requireAuth: true
-    },
+    globalConfig: { navigator: {} },
     /**
      * 是否为有效环境(微信、支付宝)
      * @returns {Boolean}
      */
     isValidNavigator() {
       return (
-        this.globalConfig.navigator.isWechat ||
-        this.globalConfig.navigator.isAlipay
+        (this.globalConfig.navigator.isWechat ||
+          this.globalConfig.navigator.isAlipay) === true
       );
     },
     /**
@@ -75,13 +55,13 @@
      * @returns {String}
      */
     userAgent() {
-      if (this.globalConfig.navigator.isWechat) {
+      if (navigator.userAgent.match(/(MicroMessenger)\/([\d\.]+)/i) !== null) {
         return 'wechat';
       }
-      if (this.globalConfig.navigator.isAlipay) {
+      if (navigator.userAgent.match(/(AlipayClient)\/([\d\.]+)/i) !== null) {
         return 'alipay';
       }
-      if (this.globalConfig.navigator.isMobile) {
+      if (/mobile|table|ip(ad|hone|od)|android/i.test(navigator.userAgent)) {
         return 'mobile';
       }
       return 'desktop';
@@ -90,23 +70,28 @@
      * 初始化配置
      */
     initConfig() {
-      this.globalConfig.requireAuth =
-        this.globalConfig.requireAuth && this.isValidNavigator();
-      this.globalConfig.navigator.ua = this.userAgent();
+      const ua = this.userAgent();
+      this.globalConfig.navigator = {
+        ua: ua,
+        [`is_${ua}`.replace(/[-|_](\w)/g, ($0, $1) => $1.toUpperCase())]: true
+      };
+
+      this.globalConfig[
+        process.env.ENV_CONFIG === 'dev' ? 'debug' : process.env.ENV_CONFIG
+      ] = true;
+
+      const console =
+        process.env.ENV_CONFIG === 'dev' || process.env.ENV_CONFIG === 'sit';
+      console && (this.globalConfig.console = console);
+
       this.logConfig();
       this.navigatorAgent();
     }
   };
   try {
     let sessionConfig = JSON.parse(sessionStorage.globalConfig || '{}');
-    global.globalConfig.debug =
-      sessionConfig.debug !== undefined ?
-        sessionConfig.debug :
-        global.globalConfig.debug;
-    global.globalConfig.console =
-      sessionConfig.console !== undefined ?
-        sessionConfig.console :
-        global.globalConfig.console;
+    sessionConfig.console !== undefined &&
+      (global.globalConfig.console = sessionConfig.console);
   } catch (error) {}
   global.initConfig();
   window.$globalConfig = Object.assign(
