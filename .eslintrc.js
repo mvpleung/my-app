@@ -53,7 +53,7 @@ module.exports = {
     'no-labels': 2, //禁止使用空label
     'no-extra-bind': 2, //禁止不必要的函数绑定
     'no-extra-boolean-cast': 2, //禁止不必要的bool转换
-    'no-extra-parens': 2, //禁止非必要的括号
+    'no-extra-parens': [2, 'all', { ignoreJSX: 'all', returnAssign: false }], //禁止非必要的括号
     'no-extra-semi': 2, //禁止多余的分号
     'no-fallthrough': 1, //禁止switch穿透
     'no-func-assign': 2, //禁止重复的函数声明

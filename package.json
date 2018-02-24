@@ -1,7 +1,7 @@
 {
-  "name": "vuewap",
+  "name": "vueapp",
   "version": "0.0.1",
-  "description": "A wap for huitong",
+  "description": "A app by vue",
   "author": "mvpleung",
   "private": true,
   "scripts": {
@@ -14,7 +14,10 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,vue}": ["eslint --ext .js,.vue src", "git add"]
+    "*.{js,vue}": [
+      "eslint --ext .js,.vue src",
+      "git add"
+    ]
   },
   "dependencies": {
     "axios": "^0.16.2",
@@ -22,10 +25,10 @@
     "mint-ui": "^2.2.13",
     "vconsole": "^2.5.2",
     "vehicle-keyboard": "0.0.2",
-    "vue": "^2.3.3",
+    "vue": "^2.5.13",
     "vue-amap": "^0.4.5",
-    "vue-router": "^2.3.1",
-    "vuex": "^2.3.1",
+    "vue-router": "^2.8.1",
+    "vuex": "^2.5.0",
     "vuex-persistedstate": "^2.0.0"
   },
   "devDependencies": {
@@ -93,5 +96,8 @@
     "node": ">= 6.0.0",
     "npm": ">= 3.0.0"
   },
-  "browserslist": ["iOS >= 7", "Android >= 4.1"]
+  "browserslist": [
+    "iOS >= 7",
+    "Android >= 4.1"
+  ]
 }

@@ -4,19 +4,30 @@
 			<img class="logo" src="../../assets/logo.png" />
 		</div> -->
     <div class="page-part"
+      style="margin-top:30px;">
+      <label>字面量测试：</label>
+      <mt-field label="组合校验"
+        type="tel"
+        v-model="phoneNumber1"
+        v-verify="{rule: 'required|mobile', 
+        blur:true,replace:{a:1},error:['手机号码不能为空','请正确输入手机号码']}"
+        placeholder="手机号码"
+        :attr="{ maxlength: 11 }" />
+    </div>
+    <div class="page-part"
       v-for="(item, index) in list"
       :key="index">
       <label>行内错误展示-自定义错误提示(list)：</label>
       <mt-field label="组合校验"
         type="tel"
         v-model="list[index].name"
-        v-verify="'required'"
-        data-verify="{replace:{index:0},error:['姓名不能为空']}"
+        v-verify="'required|mobile'"
+        :data-verify="`{replace:{index:${index}}}`"
         placeholder="姓名" />
       <label style="color:#ff0000;"
         v-remind="list[index].name"
-        data-verify="{replace:{index:0}}"
-        data-verify_errors="['姓名不能为空']"></label>
+        :data-verify="`{replace:{index:${index}},error:['姓名不能为空','姓名错误']}`">
+      </label>
     </div>
     <div class="page-part">
       <label>行内错误展示-自定义错误提示：</label>
@@ -27,10 +38,10 @@
         placeholder="手机号码"
         :attr="{ maxlength: 11 }" />
       <label style="color:#ff0000;"
-        v-remind="phoneNumber"
-        data-verify_errors="['手机号码不能为空','请正确输入手机号码']"></label>
+        v-remind="{field: 'phoneNumber', 
+        error: ['手机号码不能为空','请正确输入手机号码']}"></label>
     </div>
-    <div class="page-part"
+    <!-- <div class="page-part"
       style="margin-top:30px;">
       <label>Toast错误展示-自定义错误提示：</label>
       <mt-field label="组合校验"
@@ -41,7 +52,7 @@
         data-verify_errors="['手机号码不能为空','请正确输入手机号码']"
         placeholder="手机号码"
         :attr="{ maxlength: 11 }" />
-    </div>
+    </div> -->
     <div class="page-part"
       style="margin-top:30px;">
       <label>行内错误展示-自定义校验规则：</label>

@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-27 14:26:16 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 17:09:33
+ * @Last Modified time: 2018-02-23 10:25:50
  */
 <template>
   <div class="minepage">
@@ -106,7 +106,7 @@ export default {
     };
   },
   created() {},
-  compouted: {
+  computed: {
     headImg() {
       return (
         this.$store.getters.user.wxHeadimg ||

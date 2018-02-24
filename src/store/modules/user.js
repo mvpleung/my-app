@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 16:21:52
+ * @Last Modified time: 2018-02-23 16:39:55
  */
 import { LOGIN, LOGOUT, UPDATE_USER, CHECK_USER_INFO } from '@/store/types.js';
 const user = {
@@ -60,13 +60,13 @@ const user = {
      * @param {String} token 登录令牌
      */
     [LOGIN]({ commit }, token) {
-      commit(Type.LOGIN, token);
+      commit(LOGIN, token);
     },
     /**
      * 登出事件
      */
     [LOGOUT]({ commit }) {
-      commit(Type.LOGOUT);
+      commit(LOGOUT);
     },
     /**
      * 更新缓存用户信息
@@ -74,7 +74,7 @@ const user = {
      * @param {Object} userInfo 用户信息
      */
     [UPDATE_USER]({ commit }, userInfo) {
-      commit(Type.UPDATE_USER, userInfo);
+      commit(UPDATE_USER, userInfo);
     },
     /**
      * 检测本地用户信息是否已经过期（默认七天）

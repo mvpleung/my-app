@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2017-07-20 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 17:40:59
+ * @Last Modified time: 2018-02-24 10:11:07
  */
 
 (function(window) {
@@ -15,7 +15,8 @@
       prod: process.env.ENV_CONFIG === 'prod', //生产模式
       uat: process.env.ENV_CONFIG === 'uat', //UAT模式
       debug: process.env.ENV_CONFIG === 'dev', //是否为debug模式（开发环境才打印日志）
-      console: process.env.ENV_CONFIG === 'dev',
+      console:
+        process.env.ENV_CONFIG === 'dev' || process.env.ENV_CONFIG === 'sit',
       navigator: {
         isWechat:
           navigator.userAgent.match(/(MicroMessenger)\/([\d\.]+)/i) !== null,
@@ -46,7 +47,6 @@
      */
     navigatorAgent() {
       if (!this.globalConfig.debug && !this.isValidNavigator()) {
-        // window.top.location.href = `${location.origin}/#/404`;
         window.top.location.href =
           'https://open.weixin.qq.com/connect/oauth2/authorize?appid=XXX&connect_redirect=1#wechat_redirect';
       }
@@ -55,11 +55,12 @@
      * 日志配置
      */
     logConfig() {
-      if (this.globalConfig.debug) {
+      if (this.globalConfig.console) {
         console.log(
           '%cNow You Can Console Log...',
           'color:red;font-size:18px;font-style:oblique;'
         );
+        require('vconsole/dist/vconsole.min');
       } else {
         console.log = function() {
           return false;
@@ -68,7 +69,6 @@
           return false;
         };
       }
-      this.globalConfig.console && require('vconsole/dist/vconsole.min');
     },
     /**
      * 获取UA
