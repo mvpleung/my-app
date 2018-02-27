@@ -3,13 +3,13 @@
  * @Author: liangzc 
  * @Date: 2018-01-30 14:31:46 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 15:38:50
+ * @Last Modified time: 2018-02-27 11:04:46
  */
 <template>
-  <div class="stagger-wrapper">
-    <el-amap-search-box class="search-box"
+  <div class="amap-wrapper">
+    <amap-search-box class="search-box"
       :search-option="searchOption"
-      :on-search-result="onSearchResult"></el-amap-search-box>
+      :on-search-result="onSearchResult" />
     <el-amap class="amap-box"
       :style="{width: mapStyle.width + 'px', height: mapStyle.height + 'px'}"
       :vid="'amap-vue'"
@@ -20,14 +20,17 @@
         :key="index"
         :position="marker.position"
         :events="marker.events"
-        :content="marker.content"></el-amap-marker>
+        :content="marker.content" />
       <el-amap-info-window v-for="(window, index) in windows"
         :key="index + 1000"
         :position="window.position"
         :visible="window.visible"
-        :content="window.content"></el-amap-info-window>
+        :content="window.content" />
     </el-amap>
-    <div :style="{height: mapStyle.height + 'px', overflow: 'auto'}">
+    <div :style="{height: mapStyle.height + 'px', overflow: 'auto'}"
+      v-infinite-scroll="() => getNearStaProList(queryParams.currentPage++)"
+      :infinite-scroll-disabled="hasMore"
+      infinite-scroll-distance="50">
       <mt-cell v-for="(poi, i) in pois"
         :key="i + 10000"
         :title="poi.name"
@@ -38,8 +41,8 @@
 </template>
 
 <script>
+import { amapSearchBox } from '@/components';
 export default {
-  name: 'parking-map',
   data() {
     return {
       mapStyle: {
@@ -50,7 +53,10 @@ export default {
       zoom: 15,
       markers: [],
       windows: [],
-      searchOption: {},
+      searchOption: {
+        citylimit: true
+      },
+      //地图插件
       plugin: [
         {
           pName: 'Geolocation',
@@ -68,7 +74,17 @@ export default {
         },
         'Scale'
       ],
-      pois: []
+      pois: [],
+      //停车场查询参数
+      queryParams: {
+        longitude: '', //精度
+        latitude: '', //纬度
+        keyWords: '', //关键字
+        currentPage: 1,
+        pageSize: 10
+      },
+      hasMore: true,
+      parkingList: []
     };
   },
   created() {
@@ -100,9 +116,12 @@ export default {
       // o 是高德地图定位插件实例
       map.getCurrentPosition((status, result) => {
         if (result && result.position) {
+          const { lng, lat } = result.position;
           this.searchOption.city = (result.addressComponent || {}).city;
-          this.center = [result.position.lng, result.position.lat];
-          this.$nextTick();
+          this.center = [lng, lat];
+          this.queryParams.longitude = lng;
+          this.queryParams.latitude = lat;
+          this.$nextTick().then(() => this.getNearStaProList());
         }
       });
     },
@@ -139,15 +158,32 @@ export default {
       });
     },
     /**
-     * 搜索结果回调
-     * @param {Array} pois 附近搜索列表
+     * 搜索回调
+     * @param {String} result 搜索结果
      */
-    onSearchResult(pois) {
-      this.pois = pois;
-      this.markers = [];
-      if (pois.length > 0) {
-        this.addMarkers(pois);
-      }
+    onSearchResult(result) {
+      this.queryParams.keyWords = result.keyword;
+      this.getNearStaProList();
+    },
+    /**
+     * 根据经纬度查询附近停车场列表
+     * @param {Number} currentPage 当前页码
+     */
+    getNearStaProList(currentPage) {
+      this.queryParams.currentPage = currentPage || 1;
+      this.axios
+        .get('v1/', {
+          params: this.queryParams
+        })
+        .then(resp => {
+          let resultData = resp.result_data || {};
+          if (this.queryParams.currentPage <= 1) {
+            this.parkingList = resultData.datas;
+          } else {
+            this.parkingList = this.parkingList.concat(resultData.datas);
+          }
+          this.hasMore = resultData.resultCount >= this.queryParams.pageSize;
+        });
     },
     cellClick(i) {
       this.markers.forEach((marker, index) => {
@@ -158,11 +194,14 @@ export default {
       });
       this.mapCenter = this.markers[i].position;
     }
+  },
+  components: {
+    amapSearchBox
   }
 };
 </script>
-<style lang="scss">
-.stagger-wrapper {
+<style lang="scss" scoped>
+.amap-wrapper {
   .search-box {
     position: fixed;
     top: 25px;

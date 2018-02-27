@@ -1,5 +1,5 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
-const path = require('path')
+const path = require('path');
 
 module.exports = {
   build: {
@@ -30,7 +30,15 @@ module.exports = {
     assetsSubDirectory: 'assets',
     assetsPublicPath: '/',
     notifyOnErrors: true,
-    proxyTable: {},
+    proxyTable: {
+      '/v1': {
+        target: 'http://192.168.1.1/api/v1', //设置调用接口域名和端口号别忘了加http
+        changeOrigin: true,
+        pathRewrite: {
+          '^/v1': '/' //这里理解成用‘/v1’代替target里面的地址，组件中我们调接口时直接用v1代替
+        }
+      }
+    },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
     // (https://github.com/webpack/css-loader#sourcemaps)
@@ -42,4 +50,4 @@ module.exports = {
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true
   }
-}
+};

@@ -1,6 +1,6 @@
 <template>
   <mt-popup v-model="visible"
-    :closeOnClickModal="closeOnClickModal"
+    :close-on-click-modal="closeOnClickModal"
     position="bottom"
     class="mint-datetime">
     <mt-picker :slots="dateSlots"

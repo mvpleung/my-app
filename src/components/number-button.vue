@@ -3,7 +3,7 @@
     <mt-button class="number-button-minus"
       @click.native="decreaseVal"
       :disabled="handleDisable || minDisabled">
-      <i class="iconfont icon-minus"></i>
+      <i class="iconfont icon-minus"/>
     </mt-button>
     <slot v-if="showInput">
       <input type="text"
@@ -15,7 +15,7 @@
     <mt-button class="number-button-plus"
       @click.native="increaseVal"
       :disabled="handleDisable || maxDisabled">
-      <i class="iconfont icon-plus"></i>
+      <i class="iconfont icon-plus"/>
     </mt-button>
   </div>
 </template>

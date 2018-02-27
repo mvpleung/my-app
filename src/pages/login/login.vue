@@ -5,24 +5,24 @@
 		</div> -->
     <div class="login_container">
       <div class="login_container_shouji">
-        <i class="iconfont icon-shouji"></i>
+        <i class="iconfont icon-shouji"/>
         <input type="tel"
           name=""
           id=""
           value=""
           v-model="phoneNumber"
           v-verify="phoneNumber"
-          maxlength="11" />
+          maxlength="11" >
       </div>
       <div class="login_container_jianpan">
-        <i class="iconfont icon-jianpan"></i>
+        <i class="iconfont icon-jianpan"/>
         <input type="tel"
           name=""
           id=""
           value=""
           v-model="verfifyCode"
           v-verify="verfifyCode"
-          maxlength="4" />
+          maxlength="4" >
         <button :disabled="!verificationDisabled || time > 0"
           @click.stop.prevent="getVerification">{{ verification }}</button>
       </div>

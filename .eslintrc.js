@@ -1,4 +1,5 @@
 module.exports = {
+  //[0: pass, 1: warn, 2: error]
   // required to lint *.vue files
   root: true,
   env: {
@@ -145,6 +146,39 @@ module.exports = {
         ignoreRegExpLiterals: true
       }
     ],
-    quotes: ['error', 'single']
+    quotes: ['error', 'single'], //单引号
+    'vue/v-bind-style': 2, //v-bind 缩写模式
+    'vue/v-on-style': 2, //v-on 缩写模式
+    'vue/attribute-hyphenation': 2, //kebab-case (短横线分隔式)
+    'vue/html-self-closing': 2, //标签自关闭
+    'vue/max-attributes-per-line': [
+      //多属性换行，第一个属性例外
+      2,
+      {
+        singleline: 1,
+        multiline: {
+          max: 1,
+          allowFirstLine: true
+        }
+      }
+    ],
+    'vue/mustache-interpolation-spacing': 2, //{{ keyword }}
+    'vue/name-property-casing': [2, 'kebab-case'], //组件 name 属性必须使用 kebab-case 短横线
+    'vue/no-async-in-computed-properties': 2, //computed 计算属性不能使用异步
+    'vue/no-parsing-error': 2, //检测编译错误
+    'vue/no-shared-component-data': 2, //data() { return {} } When using the data property on a component (i.e. anywhere except on new Vue), the value must be a function that returns an object.
+    'vue/no-template-key': 2, //template 标签不允许有key
+    'vue/no-textarea-mustache': 2, //textarea 请使用 v-model
+    'vue/no-unused-vars': 2, //v-for 指令不允许存在未使用的变量声明
+    'vue/require-v-for-key': 2, //v-for 必须指定 key
+    'vue/require-valid-default-prop': 2, //校验 props 属性的默认值
+    'vue/return-in-computed-property': 2, //computed 计算属性必须存在 return
+    'vue/valid-v-bind': 2, //校验 bind 的值是否有效
+    'vue/valid-v-if': 2, //校验 v-if 表达式
+    'vue/valid-v-else-if': 2, //校验 v-else-if
+    'vue/valid-v-else': 2, //v-else 后不能跟表达式
+    'vue/valid-v-model': 2, //校验 v-model
+    'vue/this-in-template': 2, //template 中不允许出现 this
+    'vue/html-quotes': 2 //html节点必须使用双引号
   }
 };

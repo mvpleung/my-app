@@ -3,13 +3,13 @@
  * @Author: liangzc 
  * @Date: 2018-01-27 14:26:16 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-23 10:25:50
+ * @Last Modified time: 2018-02-27 11:07:55
  */
 <template>
   <div class="minepage">
     <div class="mine-infor">
       <div class="mine-head-img">
-        <img :src="headImg" />
+        <img :src="headImg">
       </div>
       <div class="mine-nick-name">
         <span>测试</span>
@@ -31,11 +31,11 @@
           :label="`优惠券:${userInfo.coupon}`" />
       </grid-view>
       <swipe class="mt-30"
-        :bannerData="bannerData" />
+        :items="bannerData" />
       <grid-view class="mt-30"
         :items="items" />
       <swipe class="mt-30"
-        :bannerData="bannerData" />
+        :items="bannerData" />
     </div>
   </div>
 </template>
@@ -48,7 +48,8 @@ export default {
       userInfo: {
         balance: 0,
         integral: 66,
-        coupon: 5
+        coupon: 5,
+        accountInfo: null //会员信息
       },
       items: [
         {
@@ -105,13 +106,33 @@ export default {
       ]
     };
   },
-  created() {},
+  activated() {
+    if (this.$utils.isEmpty(this.$store.getters.user.phone)) {
+      this.$router.replace(
+        `/mine/phonebinding?redirect=${this.$route.fullPath}`
+      );
+      return;
+    }
+    !this.accountInfo && this.getAccountInfo();
+  },
   computed: {
     headImg() {
       return (
         this.$store.getters.user.wxHeadimg ||
         require('@/assets/integral-img.png')
       );
+    }
+  },
+  methods: {
+    /**
+     * 获取账户详情
+     */
+    getAccountInfo() {
+      this.axios
+        .get('v1/', {
+          params: { phone: this.$store.getters.user.phone }
+        })
+        .then(resp => {});
     }
   },
   components: {

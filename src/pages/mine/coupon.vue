@@ -3,12 +3,12 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:21
+ * @Last Modified time: 2018-02-27 10:20:45
  */
 <template>
   <div class="coupon-mine">
     <div class="page-header">
-      <swipe :bannerData="bannerData" />
+      <swipe :items="bannerData" />
     </div>
     <div v-for="(coupon, index) in couponList"
       :key="index"

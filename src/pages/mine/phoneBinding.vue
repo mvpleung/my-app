@@ -3,24 +3,24 @@
  * @Author: liangzc 
  * @Date: 2018-02-06 14:39:44 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:29
+ * @Last Modified time: 2018-02-27 11:41:09
  */
 <template>
   <div class="phone-binding">
     <div class="phone_container">
       <div class="phone_container_shouji">
-        <i class="iconfont icon-shouji"></i>
+        <i class="iconfont icon-shouji" />
         <input type="tel"
-          v-model="mobile"
-          v-verify="mobile"
-          maxlength="11" />
+          v-model="phone"
+          v-verify="phone"
+          maxlength="11">
       </div>
       <div class="phone_container_jianpan">
-        <i class="iconfont icon-jianpan"></i>
+        <i class="iconfont icon-jianpan" />
         <input type="tel"
           v-model="identifyingCode"
           v-verify="identifyingCode"
-          maxlength="4" />
+          maxlength="4">
         <button :disabled="!verificationDisabled || time > 0"
           @click.stop.prevent="getVerification">{{ verification }}</button>
       </div>
@@ -40,16 +40,17 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      mobile: '',
+      phone: '',
       time: 0,
       identifyingCode: ''
     };
   },
   verify: {
-    mobile: [
+    phone: [
       {
         test: 'required',
         message: '手机号码不能为空'
@@ -70,12 +71,15 @@ export default {
       }
     ]
   },
+  created() {
+    document.setTitle('绑定手机');
+  },
   computed: {
     verification() {
       return this.time > 0 ? this.time + 's后重新获取' : '获取验证码';
     },
     verificationDisabled() {
-      return this.$verify.validate('mobile', true);
+      return this.$verify.validate('phone', true);
     },
     registerDisabled() {
       return !(
@@ -100,7 +104,7 @@ export default {
     getVerification() {
       this.axios
         .post('', {
-          mobile: this.mobile
+          phone: this.phone
         })
         .then(resp => {
           this.time = 60;
@@ -115,25 +119,17 @@ export default {
      */
     next() {
       if (this.$verify.check()) {
-        this.axios
-          .post('', {
-            mobile: this.mobile,
-            identifyingCode: this.identifyingCode,
-            openId: this.openId,
-            model: this.$store.getters.model
-          })
-          .then(resp => {
-            this.$router.replace({
-              path: this.$route.query.redirect ?
-                this.$route.query.redirect :
-                '/homePage'
-            });
-          })
-          .catch(err => {
-            console.error(err);
-          });
+        let userInfo = this.$store.getters.user;
+        userInfo.phone = this.phone;
+        this.updateUser(userInfo);
+        this.$router.replace({
+          path: this.$route.query.redirect ?
+            this.$route.query.redirect :
+            '/homePage'
+        });
       }
-    }
+    },
+    ...mapActions(['updateUser'])
   }
 };
 </script>

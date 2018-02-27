@@ -1,15 +1,15 @@
 /*
- * 包月产品列表
+ * 错峰产品列表
  * @Author: liangzc 
  * @Date: 2018-01-30 14:31:46 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:10:00
+ * @Last Modified time: 2018-02-13 15:38:50
  */
 <template>
-  <div class="monthly-wrapper">
+  <div class="stagger-wrapper">
     <el-amap-search-box class="search-box"
       :search-option="searchOption"
-      :on-search-result="onSearchResult" />
+      :on-search-result="onSearchResult"></el-amap-search-box>
     <el-amap class="amap-box"
       :style="{width: mapStyle.width + 'px', height: mapStyle.height + 'px'}"
       :vid="'amap-vue'"
@@ -20,12 +20,12 @@
         :key="index"
         :position="marker.position"
         :events="marker.events"
-        :content="marker.content" />
+        :content="marker.content"></el-amap-marker>
       <el-amap-info-window v-for="(window, index) in windows"
         :key="index + 1000"
         :position="window.position"
         :visible="window.visible"
-        :content="window.content" />
+        :content="window.content"></el-amap-info-window>
     </el-amap>
     <div :style="{height: mapStyle.height + 'px', overflow: 'auto'}">
       <mt-cell v-for="(poi, i) in pois"
@@ -72,7 +72,7 @@ export default {
     };
   },
   created() {
-    document.setTitle('包月产品');
+    document.setTitle('错峰产品');
     this.$nextTick(() => {
       this.resetMapSize();
     });
@@ -162,7 +162,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.monthly-wrapper {
+.stagger-wrapper {
   .search-box {
     position: fixed;
     top: 25px;

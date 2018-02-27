@@ -3,12 +3,12 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:50
+ * @Last Modified time: 2018-02-27 11:28:31
  */
 <template>
   <div class="parking-details">
     <div class="page-header">
-      <swipe :bannerData="bannerData" />
+      <swipe :items="bannerData" />
       <div class="page-header-info">
         <h3 class="page-header-title">金运世纪大厦停车场</h3>
         <router-link class="page-header-link"
@@ -28,7 +28,7 @@
           slot="icon">停车时长：</span>
         <span class="color-black"
           slot="icon">1小时</span>
-        <span class="color-red">{{amount}}元</span>
+        <span class="color-red">{{ amount }}元</span>
         <number-button v-model="amount"
           :min="0" />
       </mt-cell>

@@ -2,15 +2,19 @@
  * 九宫格
  * @Date: 2018-02-01 15:27:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-13 15:16:21
+ * @Last Modified time: 2018-02-27 11:08:19
  */
 <template>
   <div class="weui-grids">
     <slot name="grid">
       <grid-item v-for="(item, key) in items"
         :key="key"
+        :index="key"
         :label="item[labelKey]"
-        :subLabel="item[subLabelKey]"
+        :label-pattern="labelPattern"
+        :sub-label="item[subLabelKey]"
+        :sub-label-pattern="subLabelPattern"
+        :item-click="gridItemClick"
         :icon="item[iconKey]"
         :link="item[linkKey]" />
     </slot>
@@ -39,11 +43,23 @@ export default {
       default: 'label'
     },
     /**
+     * label 展示模式，支持 %s {0}  占位
+     */
+    labelPattern: {
+      type: String
+    },
+    /**
      * subLabel 副标签取值key
      */
     subLabelKey: {
       type: String,
       default: 'subLabel'
+    },
+    /**
+     * subLabel 展示模式，支持 %s {0}  占位
+     */
+    subLabelPattern: {
+      type: String
     },
     /**
      * icon 标签取值key
@@ -58,6 +74,12 @@ export default {
     linkKey: {
       type: String,
       default: 'link'
+    },
+    /**
+     * 子项点击
+     */
+    itemClick: {
+      type: Function
     }
   },
   data() {
@@ -75,6 +97,13 @@ export default {
     },
     hasSlot() {
       return this.$slots.grid !== null;
+    }
+  },
+  methods: {
+    gridItemClick(index) {
+      this.itemClick ?
+        this.itemClick(this.items[index]) :
+        this.$emit('item-click', this.items[index]);
     }
   },
   components: {

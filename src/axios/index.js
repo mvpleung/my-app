@@ -21,7 +21,7 @@ store.dispatch(UPDATE_CONFIG, {
   url: Url
 });
 // axios.defaults.withCredentials = true; //暂时屏蔽Http单实例
-axios.defaults.baseURL = Url.baseUrl;
+!$globalConfig.debug && (axios.defaults.baseURL = Url.baseUrl); //debug模式用 proxyTable 实现跨域请求
 axios.defaults.timeout = 30000;
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 let source = axios.CancelToken.source();

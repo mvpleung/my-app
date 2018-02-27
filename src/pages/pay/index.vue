@@ -3,13 +3,13 @@
     <div class="page-container">
       <span v-show="result && result.code === 'ok'"
         class="mint-field-state is-success">
-        <i class="mintui mintui-field-success"></i>
+        <i class="mintui mintui-field-success" />
       </span>
       <span v-show="result && result.code !== 'ok'"
         class="mint-field-state is-error">
-        <i class="mintui mintui-field-error"></i>
+        <i class="mintui mintui-field-error" />
       </span>
-      <p class="font18">{{result ? result.message : ''}}</p>
+      <p class="font18">{{ result ? result.message : '' }}</p>
     </div>
     <div class="page-bottom-area">
       <mt-button type="primary"
@@ -19,7 +19,7 @@
         一分钱测试
         <div v-show="isLoading"
           class="mint-spinner-snake"
-          slot="icon"></div>
+          slot="icon" />
       </mt-button>
     </div>
   </div>
@@ -38,7 +38,7 @@ export default {
   methods: {
     pay() {
       this.axios
-        .get('v1/sample/payTest', {
+        .get('v1/', {
           params: {
             openId: this.$store.getters.openId
           },

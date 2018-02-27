@@ -3,12 +3,12 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:59
+ * @Last Modified time: 2018-02-27 10:21:10
  */
 <template>
   <div class="stagger-buy">
     <div class="page-header">
-      <swipe :bannerData="bannerData" />
+      <swipe :items="bannerData" />
       <h3 class="page-header-title">金运世纪大厦停车场</h3>
     </div>
     <div class="page-container">

@@ -2,13 +2,13 @@
   <div class="page-container">
     <img v-show="authFail"
       src="../../assets/refresh.png"
-      width="10%" />
+      width="10%">
     <p class="font18"
       v-show="!authFail">正在跳转...</p>
     <p class="font16"
       v-show="authFail">授权失败，轻触屏幕重新加载</p>
     <p v-show="authFail">
-      <span class="font12">{{errorMsg}}</span>
+      <span class="font12">{{ errorMsg }}</span>
     </p>
   </div>
 </template>
@@ -42,12 +42,12 @@ export default {
         this.authFail = false;
         //code、state都不为空，授权成功
         this.axios
-          .get('v1/wx/userinfo', { params: this.query, errorHandle: true })
+          .get('v1/wechat', { params: this.query, errorHandle: true })
           .then(resp => {
             this.errorMsg = '';
-            if (!this.$utils.isEmpty(this.query.redirectUri)) {
+            if (!this.$utils.isEmpty(this.query.redirect)) {
               this.updateUser(resp.user_info || {});
-              const redirectUri = decodeURIComponent(this.query.redirectUri);
+              const redirectUri = decodeURIComponent(this.query.redirect);
               if (redirectUri) {
                 //兼容外链
                 if (redirectUri.startWith('http')) {
@@ -75,8 +75,8 @@ export default {
         authUri &&
           (window.top.location.href = authUri.format(
             encodeURIComponent(
-              `${location.origin}/#/oauth?redirectUri=${encodeURIComponent(
-                decodeURIComponent(this.query.redirectUri)
+              `${location.origin}/#/oauth?redirect=${encodeURIComponent(
+                decodeURIComponent(this.query.redirect)
               )}`
             )
           ));
@@ -90,8 +90,8 @@ export default {
         window.removeEventListener('touchstart', this.retry);
         //授权失败，轻触重试
         let link = document.createElement('a');
-        link.href = `/#/oauth?redirectUri=${encodeURIComponent(
-          decodeURIComponent(this.query.redirectUri)
+        link.href = `/#/oauth?redirect=${encodeURIComponent(
+          decodeURIComponent(this.query.redirect)
         )}`;
         link.click();
         link.remove();

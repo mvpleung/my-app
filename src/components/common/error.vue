@@ -1,5 +1,5 @@
 <template>
-  <p class="page-container">{{$route.params.msg}}</p>
+  <p class="page-container">{{ $route.params.msg }}</p>
 </template>
 
 <style lang="scss" scoped>

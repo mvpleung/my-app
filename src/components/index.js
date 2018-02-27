@@ -5,6 +5,7 @@ import DateTimePicker from './datetime-picker';
 import Field from './field';
 import Swipe from './swipe';
 import NumberButton from './number-button';
+import amapSearchBox from './amap-search-box';
 
 export {
   GridView,
@@ -13,5 +14,6 @@ export {
   DateTimePicker,
   Field,
   Swipe,
-  NumberButton
+  NumberButton,
+  amapSearchBox
 };

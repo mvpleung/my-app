@@ -17,8 +17,7 @@
         :rows="rows"
         :disabled="disabled"
         :readonly="readonly"
-        v-model="currentValue">
-      </textarea>
+        v-model="currentValue"/>
       <input @change="$emit('change', currentValue)"
         ref="input"
         class="mint-field-core"
@@ -35,16 +34,16 @@
         class="mint-field-clear"
         v-if="!disableClear"
         v-show="currentValue && type !== 'textarea' && active">
-        <i class="mintui mintui-field-error"></i>
+        <i class="mintui mintui-field-error"/>
       </div>
       <span class="mint-field-state"
         v-if="state"
         :class="['is-' + state]">
         <i class="mintui"
-          :class="['mintui-field-' + state]"></i>
+          :class="['mintui-field-' + state]"/>
       </span>
       <div class="mint-field-other">
-        <slot></slot>
+        <slot/>
       </div>
     </mt-cell>
     <div class="lineerror"

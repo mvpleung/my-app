@@ -3,19 +3,25 @@
  * @Author: liangzc 
  * @Date: 2018-02-07 14:26:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:08:19
+ * @Last Modified time: 2018-02-27 11:28:19
  */
 <template>
   <div class="parking-coupon">
     <div class="page-header">
-      <h3 class="page-header-title">余额:{{userInfo.balance}}</h3>
+      <h3 class="page-header-title">余额:{{ userInfo.balance }}</h3>
     </div>
     <div class="page-container">
       <mt-cell title="选择停车券面额" />
-      <grid-view :items="items" />
+      <grid-view :items="rechargeList"
+        label-key="rechargeMoney"
+        label-pattern="%s元"
+        sub-label-key="giveMoney"
+        sub-label-pattern="送%s元"
+        @item-click="itemClick" />
     </div>
     <div class="page-bottom-area">
       <router-link to="couponrecords">购买记录</router-link>
+      <mt-button/>
     </div>
   </div>
 </template>
@@ -28,28 +34,22 @@ export default {
       userInfo: {
         balance: 0
       },
-      items: [
-        {
-          label: '100元',
-          subLabel: '送15元'
-        },
-        {
-          label: '300元',
-          subLabel: '送20元'
-        },
-        {
-          label: '500元',
-          subLabel: '送50元'
-        },
-        {
-          label: '1000元',
-          subLabel: '送150元'
-        }
-      ]
+      rechargeList: []
     };
   },
   created() {
     document.setTitle('购买停车券');
+    this.getRechargeList();
+  },
+  methods: {
+    getRechargeList() {
+      this.axios('v1/').then(resp => {
+        this.rechargeList = (resp.result_data || {}).rechargeList;
+      });
+    },
+    itemClick(item) {
+      console.log(item);
+    }
   },
   components: {
     GridView

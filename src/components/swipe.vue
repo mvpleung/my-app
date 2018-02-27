@@ -3,23 +3,23 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 16:23:47 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:18:22
+ * @Last Modified time: 2018-02-27 11:08:43
  */
 <template>
   <div class="page-swipe">
-    <mt-swipe v-if="bannerData.length > 0"
+    <mt-swipe v-if="items.length > 0"
       @change="handleChange"
       :class="{'swipe-title': swipeTitle}"
       :speed="speed"
       :auto="auto"
-      :defaultIndex="defaultIndex"
+      :default-index="defaultIndex"
       :continuous="continuous"
-      :showIndicators="showIndicators">
-      <mt-swipe-item v-for="(item, index) in bannerData"
+      :show-indicators="showIndicators">
+      <mt-swipe-item v-for="(item, index) in items"
         :key="index">
         <div class="slide"
           @click="$emit('item-click', item, index)">
-          <img :src="item[imgKey]" />
+          <img :src="item[imgKey]">
           <div class="title"
             v-if="!$utils.isEmpty(item[titleKey])">{{ item[titleKey] }}</div>
         </div>
@@ -34,7 +34,7 @@ export default {
     /**
      * 轮播数据
      */
-    bannerData: {
+    items: {
       type: Array,
       default: () => []
     },
@@ -79,7 +79,7 @@ export default {
   },
   computed: {
     swipeTitle() {
-      return !this.$utils.isEmpty((this.bannerData[this.index] || {}).title);
+      return !this.$utils.isEmpty((this.items[this.index] || {}).title);
     }
   },
   methods: {
@@ -88,7 +88,7 @@ export default {
      */
     handleChange(index) {
       this.index = index;
-      this.$emit('change', index, this.bannerData[index]);
+      this.$emit('change', index, this.items[index]);
     }
   }
 };

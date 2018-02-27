@@ -158,7 +158,7 @@ router.afterEach(route => {
 let oauth = to => {
   return {
     path: '/oauth',
-    query: Object.assign({}, { redirectUri: to.fullPath }, to.query)
+    query: Object.assign({}, { redirect: to.fullPath }, to.query)
   };
 };
 

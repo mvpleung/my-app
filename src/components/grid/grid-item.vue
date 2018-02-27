@@ -2,7 +2,7 @@
  * 九宫格子项
  * @Date: 2018-02-01 15:27:15 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:17:57
+ * @Last Modified time: 2018-02-27 11:08:18
  */
 <template>
   <a href="javascript:;"
@@ -19,14 +19,14 @@
     <p v-if="hasLabelSlot || label"
       class="weui-grid__label">
       <slot name="label">
-        <span v-html="label" />
+        <span v-html="labelVal" />
         <template v-if="subLabel">
-          <br/>
-          <span v-html="subLabel" />
+          <br>
+          <span v-html="subLabelVal" />
         </template>
       </slot>
     </p>
-    <slot></slot>
+    <slot/>
   </a>
 </template>
 <script>
@@ -36,11 +36,19 @@ export default {
     /**
      * 标签文本
      */
-    label: String,
+    label: [String, Number],
+    /**
+     * label 展示模式，支持 %s {0}  占位
+     */
+    labelPattern: String,
     /**
      * 副标签文本
      */
-    subLabel: String,
+    subLabel: [String, Number],
+    /**
+     * subLabel 展示模式，支持 %s {0}  占位
+     */
+    subLabelPattern: String,
     /**
      * 图片地址
      */
@@ -48,7 +56,15 @@ export default {
     /**
      * 路由地址，可选值['BACK', { replace: true }, '']
      */
-    link: String
+    link: String,
+    /**
+     * 子项点击
+     */
+    itemClick: Function,
+    /**
+     * 下标（结合 grid-view 使用）
+     */
+    index: Number
   },
   data() {
     return {
@@ -72,12 +88,34 @@ export default {
       return {
         width: `${100 / column}%`
       };
+    },
+    /**
+     * 处理占位
+     */
+    labelVal() {
+      return this.labelPattern && this.labelPattern !== '' ?
+        this.labelPattern.replace('%s', this.label).replace('{0}', this.label) :
+        this.label;
+    },
+    /**
+     * 处理占位
+     */
+    subLabelVal() {
+      return this.subLabelPattern && this.subLabelPattern !== '' ?
+        this.subLabelPattern
+          .replace('%s', this.subLabel)
+          .replace('{0}', this.subLabel) :
+        this.subLabel;
     }
   },
   methods: {
     onClick() {
-      this.$emit('item-click');
-      if (/^javas/.test(this.link) || !this.link) return;
+      if (/^javas/.test(this.link) || !this.link) {
+        if (this.itemClick) {
+          this.itemClick(this.index);
+        }
+        return;
+      }
       const useRouter =
         typeof this.link === 'object' ||
         this.$router &&

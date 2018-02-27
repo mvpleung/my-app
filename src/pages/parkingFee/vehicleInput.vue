@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:46
+ * @Last Modified time: 2018-02-26 17:07:31
  */
 <template>
   <div class="vehicle-input">
@@ -16,7 +16,7 @@
       <mt-button type="primary"
         size="large"
         :disabled="$utils.isEmpty(presetNumber)"
-        @click.native="$router.push('payment')">下一步</mt-button>
+        @click.native="next">下一步</mt-button>
     </div>
     <mt-popup v-model="keyboardVisible"
       position="bottom">
@@ -54,6 +54,28 @@ export default {
       if (key.FUN_OK) {
         this.keyboardVisible = !this.keyboardVisible;
       }
+    },
+    /**
+     * 下一步
+     */
+    next() {
+      this.axios
+        .get('v1/', {
+          params: {
+            plateId: this.presetNumber
+          },
+          errorHandle: true
+        })
+        .then(res => {
+          this.$router.push('payment');
+        })
+        .catch(error => {
+          if (error.code === -1) {
+            this.$messagebox.alert('该车辆暂无订单信息');
+          } else {
+            this.$toast(error.message);
+          }
+        });
     }
   },
   components: {

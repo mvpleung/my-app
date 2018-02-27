@@ -1,9 +1,9 @@
 <template>
   <div class="logger-container">
-    <mt-switch v-model="config.console">日志开关{{config.console}}</mt-switch>
+    <mt-switch v-model="config.console">日志开关{{ config.console }}</mt-switch>
     <mt-field placeholder="手动输入路径跳转"
       v-model="path"
-      disableClear>
+      disable-clear>
       <mt-button size="small"
         @click.native="$router.push(path)">GO</mt-button>
     </mt-field>
