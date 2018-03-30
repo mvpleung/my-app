@@ -3,30 +3,55 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:21:00
+ * @Last Modified time: 2018-03-28 17:25:33
  */
 <template>
-  <div class="stagger-peak">
-    <div class="page-header">
-      <mt-cell title="已购错峰产品"
-        class="page-header-title" />
+  <div class="staggering-index">
+    <div class="page-header"
+      v-if="!listOnly">
+      <h3 class="page-header-title">已购错峰产品</h3>
     </div>
-    <div v-for="(stagger, index) in staggerPeaks"
-      :key="index"
-      class="page-container">
-      <mt-cell title="金运世纪大厦停车场"
-        value="还有3天过期"
-        class="mint-cell--largetitle mint-cell--noborder" />
-      <mt-cell title="粤B123465"
-        value="70元/30天"
-        class="mint-cell--noborder" />
-      <mt-cell title="错峰时间：18：00-09：00"
-        class="mint-cell--noborder" />
-      <mt-cell title="有效期：2018-01-01-2018-01-31">
-        <router-link to="buy">续费>></router-link>
+    <me-scroll ref="mescroll"
+      class="page-container"
+      :id="mescrollId"
+      :opt-up="{ empty: { tip: '暂无购买记录' }}"
+      :opt-down="{autoShowLoading:true}"
+      :up-callback="() => stagRecordList(queryParams.currentPage+1)"
+      :down-callback="() => stagRecordList(1)">
+      <mt-cell v-for="(product, index) in staggerPeaks"
+        :key="index"
+        class="mint-cell--large"
+        :class="isInvalid(product)?'mint-cell--disabled':''">
+        <template slot="title">
+          <span class="mint-cell-text">{{ product.parkingName }}</span>
+          <span class="mint-cell-label">
+            {{ product.lpn }}
+          </span>
+          <span class="mint-cell-label">
+            错峰时间：{{ product | staggeringTime }}
+          </span>
+          <span class="mint-cell-label">
+            有效期：{{ product.startTime }} - {{ product.endTime }}
+          </span>
+        </template>
+        <template v-if="!isInvalid(product)">
+          <span class="mint-cell-label">
+            {{ product | expiryTime($utils) }}
+          </span>
+          <span class="mint-cell-label">
+            {{ (Number(product.actualPayMoney || '0')/100).toFixed(2) }}元
+          </span>
+          <!-- <span class="mint-cell-value--link"
+            @click="renew(product)">续费>></span> -->
+        </template>
+        <template v-else>
+          <i class="iconfont icon-Invalid" />
+        </template>
       </mt-cell>
-    </div>
-    <div class="page-bottom-area">
+    </me-scroll>
+    <div class="page-bottom-area"
+      v-if="!listOnly"
+      v-show="!loading">
       <mt-button size="large"
         type="primary"
         @click.native="$router.push('list')">购买错峰产品</mt-button>
@@ -34,34 +59,183 @@
   </div>
 </template>
 <script>
+import Mescroll from 'vue-mescroll/mescroll';
+const chartArray = ['一', '二', '三', '四', '五', '六', '日'];
 export default {
+  name: 'staggering-peak',
+  props: {
+    /**
+     * mescroll id
+     */
+    mescrollId: {
+      type: String,
+      default: 'mescroll'
+    },
+    /**
+     * 是否仅显示列表
+     */
+    listOnly: Boolean,
+    /**
+     * 是否作为组件存在
+     */
+    isComponent: Boolean
+  },
   data() {
     return {
-      staggerPeaks: [{}, {}]
+      loading: false,
+      staggerPeaks: [],
+      queryParams: {
+        idType: this.$store.getters.user.id_type,
+        id: this.$store.getters.user.id,
+        currentPage: 0,
+        pageSize: 20
+      }
     };
   },
   created() {
-    document.setTitle('已购错峰产品');
+    !this.isComponent && document.setTitle('已购错峰产品');
+    //重置缓存
+    this.$utils.removeSessionItem('staggeringPeak');
+  },
+  filters: {
+    /**
+     * 错峰时间
+     */
+    staggeringTime(product) {
+      let weekArray = (product.staggerDate || '')
+        .split(',')
+        .sort((a, b) => Number(a) > Number(b));
+      return (
+        (weekArray.length > 0 ?
+          `周${chartArray[Number(weekArray.slice(0, 1)[0])]}至周${
+            chartArray[Number(weekArray.slice(-1)[0])]
+          }` :
+          '') +
+        ',' +
+        product.staggerTime
+      );
+    },
+    /**
+     * 过期时间
+     */
+    expiryTime(product, utils) {
+      let days = utils.dateDiff(product.endTime, Date.now());
+      return days > 0 && days <= 3 ?
+        `还有${days}天过期` :
+        days === 0 ? '今天到期' : '';
+    }
+  },
+  computed: {
+    now() {
+      return new Date().Format('yyyy-MM-dd');
+    }
+  },
+  methods: {
+    /**
+     * 获取已购错峰产品记录
+     * @param {Number} currentPage 当前页
+     */
+    stagRecordList(currentPage) {
+      this.loading = true;
+      this.queryParams.currentPage = currentPage || 1;
+      this.axios
+        .get('v1/phtons/stagRecordList', {
+          params: this.queryParams,
+          silence: true
+        })
+        .then(resp => {
+          let { recordList, count } = resp.result_data || {};
+          recordList = recordList || [];
+          if (this.queryParams.currentPage <= 1) {
+            this.staggerPeaks = recordList;
+          } else {
+            this.staggerPeaks = this.staggerPeaks.concat(recordList);
+          }
+          this.$refs.mescroll.instance.endBySize(recordList.length, count);
+          this.loading = false;
+        })
+        .catch(err => {
+          this.$toast(err.message);
+          this.$refs.mescroll.instance.endBySize(0);
+          this.$refs.mescroll.instance.endErr();
+          this.loading = false;
+        });
+    },
+    /**
+     * 是否已失效
+     */
+    isInvalid(product) {
+      return this.$utils.dateDiff(product.endTime, this.now) < 0;
+    },
+    /**
+     * 续费（暂时搁置）
+     */
+    renew(product) {
+      this.axios
+        .get('v1/phtons/getStaProDetail', {
+          params: { productId: product.staggerId }
+        })
+        .then(resp => {
+          let staggeringPeak = resp.result_data || {};
+          if (
+            this.$utils.dateDiff(staggeringPeak.endTime, product.endTime) >= 1
+          ) {
+            //可以续费（产品截止日期大于购买产品的结束日期）
+            staggeringPeak.renew = 1; //增加续费标志
+            staggeringPeak.renewTime = this.$utils.stepDays(product.endTime, 1);
+            staggeringPeak.plate = product.lpn;
+            this.$utils.setSessionItem('staggeringPeak', staggeringPeak, true);
+            this.$utils.goPay(this, '/pay/staggeringpeak');
+          } else {
+            this.$messagebox.alert('该错峰产品已停售，无法续费', '提示', {
+              confirmButtonText: '我知道了'
+            });
+          }
+        });
+    }
+  },
+  components: {
+    'me-scroll': Mescroll
   }
 };
 </script>
 <style lang="scss">
-.stagger-peak {
-  .page-header-title {
-    border-bottom: 1px solid #e8e8e8;
-  }
-  .page-container {
+.staggering-index {
+  .page-container.mescroll {
+    top: 45px;
+    height: calc(100% - 45px);
     .mint-cell {
       min-height: 30px;
     }
-    .mint-cell--largetitle {
-      margin: 15px 0;
+    .mint-cell--large {
       .mint-cell-value {
-        span {
-          color: rgb(255, 76, 83);
+        display: block;
+        text-align: right;
+        .mint-cell-label {
+          &:nth-child(1) {
+            color: rgb(255, 76, 83);
+          }
+          &:nth-child(2) {
+            font-size: 14px;
+            font-weight: bold;
+          }
+          &:last-child {
+            margin-bottom: 15px;
+          }
+        }
+        .mint-cell-value--link {
+          color: #6d6df3;
+          font-size: 14px;
+          text-decoration: underline;
+        }
+        .icon-Invalid {
+          font-size: 55px;
         }
       }
     }
+  }
+  .page-bottom-area {
+    position: fixed;
   }
 }
 </style>

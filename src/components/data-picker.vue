@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 17:44:59 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:18:08
+ * @Last Modified time: 2018-03-14 13:49:16
  */
 <template>
   <mt-popup v-model="visible"
@@ -66,8 +66,10 @@ export default {
   data() {
     return {
       visible: false,
+      prevIndex: {},
       currentValues: null,
-      slotsData: []
+      slotsData: [],
+      disabledSelector: []
     };
   },
   watch: {
@@ -87,13 +89,14 @@ export default {
   },
   created() {
     this.$nextTick(() => {
-      this.$refs.dataPicker.$el.addEventListener(
-        'touchmove',
-        event => {
-          event.preventDefault();
-        },
-        false
-      );
+      this.$refs.dataPicker &&
+        this.$refs.dataPicker.$el.addEventListener(
+          'touchmove',
+          event => {
+            event.preventDefault();
+          },
+          false
+        );
     });
     this.updateDefault();
   },
@@ -108,9 +111,27 @@ export default {
       this.$emit('cancel');
     },
     change(picker, values) {
-      this.currentValues = values;
-      this.handleValueChange();
-      this.$emit('change', picker, values);
+      if (values.some(val => val && val.disabled === true)) {
+        values.forEach(
+          (val, i) =>
+            val.disabled === true &&
+            picker.setSlotValue(i, this.slotsData[i].values[this.prevIndex[i]])
+        );
+      } else {
+        Array.isArray(this.currentValues) &&
+          this.currentValues.forEach(
+            (currentValue, i) =>
+              currentValue &&
+              this.slotsData[i].values.forEach((value, index) => {
+                if (currentValue.value === value.value) {
+                  this.prevIndex[i] = index;
+                }
+              })
+          );
+        this.currentValues = values;
+        this.handleValueChange();
+        this.$emit('change', picker, values);
+      }
     },
     confirm() {
       this.visible = false;
@@ -123,12 +144,13 @@ export default {
      * 更新默认值
      */
     updateDefault() {
+      let defaultValue,
+        slotsArray = [];
+      this.slotsData = [];
       if (this.default) {
-        this.slotsData = [];
         let that = this,
           opt = that.default.opt && Array.isArray(that.default.opt),
-          values = [],
-          defaultValue;
+          values = [];
         this.slots.forEach(item => {
           let indexOf = -1;
           item.values &&
@@ -150,17 +172,15 @@ export default {
                 });
               }
             });
-          that.slotsData.push({
+          slotsArray.push({
             flex: item.flex,
             values: opt ? values : item.values,
             defaultIndex: indexOf !== -1 ? indexOf : item.defaultIndex
           });
         });
-        return defaultValue;
       }
-      this.slotsData = this.slots;
-
-      return null;
+      this.slotsData = slotsArray.length > 0 ? slotsArray : this.slots;
+      return defaultValue;
     }
   }
 };

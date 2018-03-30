@@ -3,70 +3,96 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-23 16:39:55
+ * @Last Modified time: 2018-03-19 14:03:28
  */
-import { LOGIN, LOGOUT, UPDATE_USER, CHECK_USER_INFO } from '@/store/types.js';
+import {
+  LOGOUT,
+  INIT_USER,
+  UPDATE_USER,
+  UPDATE_MOBILE,
+  UPDATE_ACCOUNT,
+  RESET_ACCOUNT
+} from '@/store/types.js';
 const user = {
   state: {
-    token: null, //令牌
-    user: null //用户信息
+    user: null, //用户信息
+    account: null //账户信息
   },
   getters: {
-    openId: (state, getters) => (getters.user || {}).openid, //微信openId
-    userId: (state, getters) => (getters.user || {}).userId, //支付宝userId
+    id: (state, getters) => (getters.user || {}).id, //授权身份标识（userId|openId）
     isLogin: (state, getters) => {
-      //是否登录，校验本地存储的 openid
+      //是否登录，校验本地存储的 id
       let user = getters.user;
-      return user && !Vue.$utils.isEmpty(user.openid);
+      return user && !Vue.$utils.isEmpty(user.id);
     },
-    user: state =>
-      state.user ||
-      (state.user = Vue.$utils.getLocalStorage('ht_u_info', {
-        exp: 60 * 60 * 24 * 7,
-        force: true,
-        needDecipher: true
-      })) ||
-      {}
+    /**
+     * id: openId/userId
+     * id_type: 公众号:wechat 生活号:alipay
+     * nick_name: 昵称
+     * avatar: 头像
+     * mobile: 手机
+     */
+    user: state => state.user || {},
+    account: state => state.account || {} //账户信息
   },
   mutations: {
-    /**
-     * 触发登录，暂时闲置
-     */
-    [LOGIN]: (state, data) => {
-      localStorage.token = data;
-      state.token = data;
-    },
     /**
      * 触发登出，暂时闲置
      */
     [LOGOUT]: state => {
-      localStorage.removeItem('token');
-      state.token = null;
+      localStorage.removeItem('ht_u_info');
+      state.user = null;
     },
     /**
      * 更新本地用户缓存(包含有效时间,默认7天)
      */
     [UPDATE_USER]: (state, userInfo) => {
-      Vue.$utils.setLocalStorage('ht_u_info', state.user = userInfo, {
-        exp: 60 * 60 * 24 * 7,
+      Vue.$utils.setLocalItem('ht_u_info', state.user = userInfo, {
+        exp: 60 * 60 * 24,
         needCipher: true
       });
+    },
+    /**
+     * 更新用户手机
+     */
+    [UPDATE_MOBILE]: (state, mobile) => {
+      let userInfo =
+        state.user || Vue.$utils.getLocalItem('ht_u_info', true) || {};
+      userInfo.mobile = mobile;
+      Vue.$utils.setLocalItem('ht_u_info', state.user = userInfo, {
+        exp: 60 * 60 * 24,
+        needCipher: true
+      });
+    },
+    /**
+     * 更新账户信息
+     */
+    [UPDATE_ACCOUNT]: (state, account) => {
+      state.account = account;
+    },
+    /**
+     * 重置账户信息
+     */
+    [RESET_ACCOUNT]: state => {
+      state.account = null;
     }
   },
   actions: {
-    /**
-     * 登录事件
-     * @param {*} commit module
-     * @param {String} token 登录令牌
-     */
-    [LOGIN]({ commit }, token) {
-      commit(LOGIN, token);
-    },
     /**
      * 登出事件
      */
     [LOGOUT]({ commit }) {
       commit(LOGOUT);
+    },
+    /**
+     * 初始化用户信息
+     */
+    [INIT_USER](context) {
+      !context.state.user &&
+        context.commit(
+          UPDATE_USER,
+          Vue.$utils.getLocalItem('ht_u_info', true) || {}
+        );
     },
     /**
      * 更新缓存用户信息
@@ -77,22 +103,42 @@ const user = {
       commit(UPDATE_USER, userInfo);
     },
     /**
-     * 检测本地用户信息是否已经过期（默认七天）
-     * @param {Store} context store module
+     * 更新用户手机
      */
-    [CHECK_USER_INFO](context) {
+    [UPDATE_MOBILE]({ commit }, mobile) {
+      commit(UPDATE_MOBILE, mobile);
+    },
+    /**
+     * 更新缓存用户账户信息
+     * @param {Object} accountInfo 用户账户信息
+     */
+    [UPDATE_ACCOUNT]({ commit, getters }) {
       return new Promise((resolve, reject) => {
-        let userInfo = Vue.$utils.getLocalStorage('ht_u_info', {
-          exp: 60 * 60 * 24 * 7,
-          needDecipher: true
-        });
-        if (userInfo && userInfo.expire) {
-          //已过期，重新获取数据
-          reject({ message: '用户信息已过期' });
+        let userInfo = getters.user;
+        if (
+          !Vue.$utils.isEmpty(userInfo.mobile) &&
+          Vue.$utils.isEmptyObject(getters.account)
+        ) {
+          Vue.axios
+            .get('v1/phtons/accountInfo', {
+              params: { phone: userInfo.mobile },
+              silence: true
+            })
+            .then(resp => {
+              commit(UPDATE_ACCOUNT, resp.result_data || {});
+              resolve();
+            })
+            .catch(err => reject(err));
         } else {
           resolve();
         }
       });
+    },
+    /**
+     * 重置账户信息
+     */
+    [RESET_ACCOUNT]({ commit }) {
+      commit(RESET_ACCOUNT);
     }
   }
 };

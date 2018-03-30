@@ -26,7 +26,7 @@
         placeholder="姓名" />
       <label style="color:#ff0000;"
         v-remind="list[index].name"
-        :data-verify="`{replace:{index:${index}},error:['姓名不能为空','姓名错误']}`"/>
+        :data-verify="`{replace:{index:${index}},error:['姓名不能为空','姓名错误']}`" />
     </div>
     <div class="page-part">
       <label>行内错误展示-自定义错误提示：</label>
@@ -38,7 +38,7 @@
         :attr="{ maxlength: 11 }" />
       <label style="color:#ff0000;"
         v-remind="{field: 'phoneNumber', 
-        error: ['手机号码不能为空','请正确输入手机号码']}"/>
+        error: ['手机号码不能为空','请正确输入手机号码']}" />
     </div>
     <!-- <div class="page-part"
       style="margin-top:30px;">
@@ -66,7 +66,7 @@
           @click.stop.prevent="getVerification">{{ verification }}</mt-button>
       </mt-field>
       <label v-remind="verfifyCode"
-        style="color:#ff0000;"/>
+        style="color:#ff0000;" />
     </div>
     <div class="page-part"
       style="margin-top:30px;">
@@ -91,7 +91,6 @@
 </template>
 
 <script type="application/ecmascript">
-import { LOGIN } from '@/store/types';
 export default {
   name: '',
   data() {
@@ -189,7 +188,6 @@ export default {
       this.list.push({});
       if (this.$verify.check()) {
         this.$router.push('/homePage');
-        this.$store.dispatch(LOGIN, 'token');
       }
     }
   }

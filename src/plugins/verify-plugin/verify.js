@@ -3,7 +3,7 @@
  * @Author: focus 
  * @Date: 2017-04-14
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-23 17:33:21
+ * @Last Modified time: 2018-02-28 14:58:01
  */
 let _ = require('lodash/object'),
   domTools = require('./domTools'),
@@ -345,12 +345,11 @@ Verify.prototype.validate = function(field, rule, validOnly) {
   }
   this.vm.$verify.$errorArray = [];
   _.set(this.vm.$verify.$errors, field, []);
+  let expression = helper.getExpression(this.vm, field);
   return validate.call(
     this.vm,
     field,
-    rule ||
-      helper.convertCustomError(this.vm, field, field) ||
-      helper.getExpression(this.vm, field),
+    rule || helper.convertCustomError(this.vm, field, expression) || expression,
     validOnly
   );
 };
@@ -417,15 +416,15 @@ Verify.prototype.check = function(group, validOnly) {
 
 /**
  * 获取错误提示
- * @param {String} expression 错误键名（为空时返回全部错误提示）
+ * @param {String} field 错误键名（为空时返回全部错误提示）
  * @return {String}
  */
-Verify.prototype.errors = function(expression) {
-  if (!expression) {
+Verify.prototype.errors = function(field) {
+  if (!field) {
     return this.vm.$verify.$errors;
   }
   let errorText = this.vm.$verify.$errors ?
-    _.get(this.vm.$verify.$errors, expression) :
+    _.get(this.vm.$verify.$errors, field) :
     null;
   if (errorText && Array.isArray(errorText)) {
     return errorText[0];

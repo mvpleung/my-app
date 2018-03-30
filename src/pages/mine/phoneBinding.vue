@@ -3,38 +3,33 @@
  * @Author: liangzc 
  * @Date: 2018-02-06 14:39:44 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:41:09
+ * @Last Modified time: 2018-03-16 16:37:44
  */
 <template>
   <div class="phone-binding">
-    <div class="phone_container">
-      <div class="phone_container_shouji">
-        <i class="iconfont icon-shouji" />
-        <input type="tel"
-          v-model="phone"
-          v-verify="phone"
-          maxlength="11">
-      </div>
-      <div class="phone_container_jianpan">
-        <i class="iconfont icon-jianpan" />
-        <input type="tel"
-          v-model="identifyingCode"
-          v-verify="identifyingCode"
-          maxlength="4">
+    <div class="page-container">
+      <mt-field label="手机号"
+        placeholder="请输入手机"
+        type="tel"
+        :attr="{maxlength:11}"
+        v-verify="{rule: 'phone', blur: false}"
+        v-model="phone" />
+      <mt-field label="验证码"
+        placeholder="请输入验证码"
+        type="tel"
+        v-verify="{rule: 'verificationCode', blur: false}"
+        :attr="{ maxlength: 4 }"
+        v-model="verificationCode">
         <button :disabled="!verificationDisabled || time > 0"
           @click.stop.prevent="getVerification">{{ verification }}</button>
-      </div>
+      </mt-field>
     </div>
-    <div class="phone_footer">
-      <div class="phone_footer_agreement">
-        点击注册，即表示您同意
-        <router-link to="#">用户协议</router-link>
-      </div>
-      <mt-button class="registerButton"
+    <div class="page-bottom-area">
+      <mt-button class="loginButton"
         type="primary"
         size="large"
         :disabled="registerDisabled"
-        @click="next">下一步</mt-button>
+        @click="next">绑定</mt-button>
     </div>
   </div>
 </template>
@@ -46,7 +41,7 @@ export default {
     return {
       phone: '',
       time: 0,
-      identifyingCode: ''
+      verificationCode: ''
     };
   },
   verify: {
@@ -57,13 +52,13 @@ export default {
       },
       'mobile'
     ],
-    identifyingCode: [
+    verificationCode: [
       {
         test: 'required',
         message: '验证码不能为空'
       },
       {
-        test: /^(\+|-)?\d+($|\.\d+$)/,
+        test: 'integer',
         message: '请正确输入验证码'
       },
       {
@@ -84,7 +79,7 @@ export default {
     registerDisabled() {
       return !(
         this.verificationDisabled &&
-        this.$verify.validate('identifyingCode', true)
+        this.$verify.validate('verificationCode', true)
       );
     }
   },
@@ -103,12 +98,13 @@ export default {
      */
     getVerification() {
       this.axios
-        .post('', {
-          phone: this.phone
+        .get('v1/phtons/verificationCode', {
+          params: { phone: this.phone }
         })
         .then(resp => {
           this.time = 60;
           this.timer();
+          this.$toast('验证码已发送到您的手机，请注意查收');
         })
         .catch(err => {
           console.error(err);
@@ -119,79 +115,56 @@ export default {
      */
     next() {
       if (this.$verify.check()) {
-        let userInfo = this.$store.getters.user;
-        userInfo.phone = this.phone;
-        this.updateUser(userInfo);
-        this.$router.replace({
-          path: this.$route.query.redirect ?
-            this.$route.query.redirect :
-            '/homePage'
-        });
+        const { id_type: idType, id } = this.$store.getters.user;
+        this.axios
+          .get('v1/phtons/bindMobile', {
+            params: {
+              phone: this.phone,
+              verificationCode: this.verificationCode,
+              idType,
+              id
+            }
+          })
+          .then(resp => {
+            this.updateMobile(this.phone);
+            if (this.$route.query.redirect) {
+              this.$router.replace(this.$route.query.redirect);
+            } else {
+              this.$router.go(-1);
+            }
+            this.$bus.emit('bindSuccess', this.phone);
+          });
       }
     },
-    ...mapActions(['updateUser'])
+    ...mapActions(['updateMobile'])
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss" scoped>
+<style lang="scss">
 .phone-binding {
   padding-top: 20px;
-  .phone_container {
-    padding: 10px;
-    input {
-      border: none;
-      /*border-left: 1px solid grey;*/
-      margin-left: 10px;
-    }
-    input:focus {
-      outline: none;
-    }
-    .phone_container_shouji {
-      padding: 10px;
-      border-bottom: 1px solid rgb(245, 246, 245);
-      .icon-shouji {
-        font-size: 20px;
+  .page-container {
+    .mint-field {
+      .mint-cell-wrapper {
+        padding-left: 20px;
+        .mint-cell-value {
+          .mint-field-core {
+            text-align: left;
+          }
+        }
+        button {
+          outline: none;
+          color: rgb(251, 0, 0);
+          border: none;
+          background-color: inherit;
+          float: right;
+          &:disabled {
+            color: rgba(251, 0, 0, 0.5);
+          }
+        }
       }
-      input {
-        width: 80%;
-      }
-    }
-    .phone_container_jianpan {
-      padding: 10px;
-      border-bottom: 1px solid rgb(245, 246, 245);
-      .icon-jianpan {
-        font-size: 20px;
-      }
-      button {
-        color: rgb(251, 0, 0);
-        border: none;
-        background-color: inherit;
-        float: right;
-      }
-      button:disabled {
-        color: rgba(251, 0, 0, 0.5);
-      }
-    }
-  }
-  .phone_footer {
-    padding: 15px;
-    .phone_footer_agreement {
-      text-align: center;
-      font-size: 12px;
-      color: grey;
-      a {
-        color: rgb(251, 0, 0);
-        text-decoration: none;
-      }
-    }
-    .mint-button {
-      margin-top: 15px;
-      background: rgb(251, 0, 0);
-    }
-    .mint-button:disabled {
-      background: rgba(251, 0, 0, 0.5);
     }
   }
 }

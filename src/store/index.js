@@ -1,16 +1,16 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-// import createPersistedState from 'vuex-persistedstate' //数据持久
-import global from './modules/global';
+import global, { plugin } from './modules/global';
 import user from './modules/user';
 Vue.use(Vuex);
 
 /**Default Module */
 const store = new Vuex.Store({
-  // plugins: [createPersistedState()],
+  plugins: [plugin],
   modules: {
     global,
     user
-  }
+  },
+  strict: process.env.NODE_ENV !== 'production'
 });
 export default store;

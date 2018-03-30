@@ -149,13 +149,14 @@ export default {
   },
   created() {
     this.$nextTick(() => {
-      this.$refs.picker.$el.addEventListener(
-        'touchmove',
-        event => {
-          event.preventDefault();
-        },
-        false
-      );
+      this.$refs.picker &&
+        this.$refs.picker.$el.addEventListener(
+          'touchmove',
+          event => {
+            event.preventDefault();
+          },
+          false
+        );
     });
   },
   methods: {
@@ -327,7 +328,7 @@ export default {
           }
         });
       this.$nextTick(() => {
-        this.setSlotsByValues(values);
+        this.$refs.picker && this.setSlotsByValues(values);
       });
     },
 
@@ -409,12 +410,7 @@ export default {
 
     confirm() {
       this.visible = false;
-      this.$emit(
-        'confirm',
-        this.pattern ?
-          this.$utils.formatDateTime(value, this.pattern) :
-          this.currentValue
-      );
+      this.$emit('confirm', this.currentValue);
     },
 
     handleValueChange() {

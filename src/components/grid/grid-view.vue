@@ -2,12 +2,12 @@
  * 九宫格
  * @Date: 2018-02-01 15:27:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:08:19
+ * @Last Modified time: 2018-03-22 11:24:49
  */
 <template>
   <div class="weui-grids">
     <slot name="grid">
-      <grid-item v-for="(item, key) in items"
+      <grid-item v-for="(item, key) in datas"
         :key="key"
         :index="key"
         :label="item[labelKey]"
@@ -16,6 +16,7 @@
         :sub-label-pattern="subLabelPattern"
         :item-click="gridItemClick"
         :icon="item[iconKey]"
+        :iconfont="item[iconfontKey]"
         :link="item[linkKey]" />
     </slot>
   </div>
@@ -69,11 +70,24 @@ export default {
       default: 'icon'
     },
     /**
+     * iconfont 标签取值key
+     */
+    iconfontKey: {
+      type: String,
+      default: 'iconfont'
+    },
+    /**
      * link 标签取值key
      */
     linkKey: {
       type: String,
       default: 'link'
+    },
+    /**
+     * 过滤函数
+     */
+    filter: {
+      type: Function
     },
     /**
      * 子项点击
@@ -84,8 +98,17 @@ export default {
   },
   data() {
     return {
+      datas: [],
       childrenSize: 3
     };
+  },
+  created() {
+    this.filterItem();
+  },
+  watch: {
+    items(val) {
+      this.filterItem();
+    }
   },
   computed: {
     /**
@@ -100,6 +123,13 @@ export default {
     }
   },
   methods: {
+    filterItem() {
+      if (this.filter) {
+        this.datas = this.items.map(item => this.filter(item) || item);
+      } else {
+        this.datas = this.items;
+      }
+    },
     gridItemClick(index) {
       this.itemClick ?
         this.itemClick(this.items[index]) :
@@ -107,7 +137,7 @@ export default {
     }
   },
   components: {
-    'grid-item': this.hasSlot ? null : require('./grid-item')
+    'grid-item': this.hasSlot ? null : () => import('./grid-item')
   }
 };
 </script>

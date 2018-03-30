@@ -3,44 +3,63 @@
  * @Author: liangzc 
  * @Date: 2018-01-30 14:31:46 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:10:20
+ * @Last Modified time: 2018-03-26 15:49:05
  */
 <template>
-  <div class="amap-wrapper">
+  <div class="parking-list">
     <el-amap-search-box class="search-box"
       :search-option="searchOption"
       :on-search-result="onSearchResult" />
     <el-amap class="amap-box"
+      ref="amap"
       :style="{width: mapStyle.width + 'px', height: mapStyle.height + 'px'}"
       :vid="'amap-vue'"
-      :plugin="plugin"
       :center="mapCenter"
+      :plugin="plugin"
       :zoom="zoom">
       <el-amap-marker v-for="(marker, index) in markers"
         :key="index"
         :position="marker.position"
         :events="marker.events"
         :content="marker.content" />
-      <el-amap-info-window v-for="(window, index) in windows"
-        :key="index + 1000"
-        :position="window.position"
-        :visible="window.visible"
-        :content="window.content" />
     </el-amap>
-    <div :style="{height: mapStyle.height + 'px', overflow: 'auto'}"
-      v-infinite-scroll="() => getNearParkList(queryParams.currentPage++)"
-      :infinite-scroll-disabled="hasMore"
-      infinite-scroll-distance="50">
-      <mt-cell v-for="(poi, i) in pois"
-        :key="i + 10000"
-        :title="poi.name"
-        :label="poi.address"
-        @click.native="cellClick(i)" />
-    </div>
+    <me-scroll ref="mescroll"
+      class="page-container"
+      :opt-down="{ auto: false }"
+      :opt-up="{  auto: false, empty: { tip: '没有搜索到相关停车场' }}"
+      :up-callback="() => getNearParkList(queryParams.currentPage+1)"
+      :down-callback="() => getNearParkList(1)">
+      <mt-spinner v-show="$utils.isEmpty(queryParams.longitude)"
+        type="triple-bounce"
+        :size="60" />
+      <mt-cell v-for="(parking, i) in parkingList"
+        :key="i + 1000"
+        :data-index="i"
+        class="mint-cell--large"
+        @click.native="navigation(parking)">
+        <template slot="title">
+          <span class="mint-cell-text">{{ parking.name }}</span>
+          <span class="mint-cell-label"
+            v-show="position.lng && position.lat">
+            距您：{{ parking | distance(position) }}
+          </span>
+          <span class="mint-cell-label">{{ parking.address }}</span>
+          <span class="mint-cell-label">收费标准：{{ parking.charge }}</span>
+        </template>
+        <template>
+          <mt-badge :type="parking | badgeType">
+            {{ parking.allSCount }}
+          </mt-badge>
+          <span class="mint-cell-label mint-cell-value--link"
+            @click.stop="navigation(parking)">去这里>></span>
+        </template>
+      </mt-cell>
+    </me-scroll>
   </div>
 </template>
 
 <script>
+import Mescroll from 'vue-mescroll/mescroll';
 export default {
   data() {
     return {
@@ -51,7 +70,7 @@ export default {
       mapCenter: [-1, -1],
       zoom: 15,
       markers: [],
-      windows: [],
+      markerRefs: [],
       searchOption: {
         citylimit: true
       },
@@ -60,6 +79,7 @@ export default {
         {
           pName: 'Geolocation',
           buttonPosition: 'RB',
+          zoomToAccuracy: true,
           events: {
             init: this.initEvent
           }
@@ -80,10 +100,10 @@ export default {
         latitude: '', //纬度
         status: '0', //0:全部;1:支持电子支付;2:支持错峰
         currentPage: 1,
-        pageSize: 10
+        pageSize: 20
       },
-      hasMore: true,
-      parkingList: []
+      parkingList: [],
+      position: {} //定位信息
     };
   },
   created() {
@@ -97,6 +117,56 @@ export default {
       resizeFunc && resizeFunc.apply(this, arguments);
     };
   },
+  watch: {
+    /**
+     * 点聚合
+     */
+    markerRefs(val) {
+      if (val.length === this.markers.length) {
+        if (!this.markerClusterer) {
+          this.markerClusterer = new AMap.MarkerClusterer(
+            this.$refs.amap.$$getInstance(),
+            this.markerRefs,
+            { gridSize: 80 }
+          );
+        } else {
+          this.markerClusterer.clearMarkers();
+          this.markerClusterer.addMarkers(this.markerRefs);
+        }
+      }
+    }
+  },
+  filters: {
+    /**
+     * 距离
+     */
+    distance(parking, position = {}) {
+      let distance = parseInt(
+        AMap.GeometryUtil.distance(
+          [position.lng, position.lat],
+          [parking.longitude, parking.latitude]
+        )
+      );
+      !isNaN(distance) &&
+        (parking.distanceDesc =
+          distance <= 0 ?
+            '<1米' :
+            distance >= 1000 ?
+              `${(distance / 1000).toFixed(1)}公里` :
+              `${distance}米`);
+      return parking.distanceDesc;
+    },
+    /**
+     * 根据车位剩余量展示不同颜色
+     */
+    badgeType(parking) {
+      parking.countBadgeType =
+        parking.allSCount === 0 ?
+          'error' :
+          parking.allSCount <= parking.allCount / 3 ? 'warning' : 'success';
+      return parking.countBadgeType;
+    }
+  },
   methods: {
     /**
      * 重置地图尺寸
@@ -108,21 +178,113 @@ export default {
       };
     },
     initEvent(map) {
-      //手动处理定位iCON位置
-      let geoIcon = document.getElementsByClassName('amap-geolocation-con')[0];
-      geoIcon.style.right = 14 + 'px';
-      geoIcon.style.bottom = 130 + 'px';
+      this.$nextTick(() => {
+        //手动处理定位iCON位置
+        let geoIcon = document.getElementsByClassName(
+          'amap-geolocation-con'
+        )[0];
+        if (geoIcon) {
+          geoIcon.style.right = 14 + 'px';
+          geoIcon.style.bottom = 130 + 'px';
+        }
+      });
       // o 是高德地图定位插件实例
       map.getCurrentPosition((status, result) => {
         if (result && result.position) {
-          const { lng, lat } = result.position;
+          const { lng, lat } = this.position = result.position;
           this.searchOption.city = (result.addressComponent || {}).city;
-          this.center = [lng, lat];
+          this.mapCenter = [lng, lat];
           this.queryParams.longitude = lng;
           this.queryParams.latitude = lat;
-          this.$nextTick().then(() => this.getNearParkList());
+          this.$nextTick().then(() =>
+            this.$refs.mescroll.instance.triggerDownScroll()
+          );
         }
       });
+    },
+    /**
+     * 搜索结果回调
+     * @param {Array} pois 附近搜索列表
+     */
+    onSearchResult(pois) {
+      const poi = pois[0] || {};
+      this.queryParams = {
+        ...this.queryParams,
+        currentPage: 1,
+        longitude: poi.lng || 0,
+        latitude: poi.lat || 0
+      };
+      this.$refs.mescroll.instance.triggerDownScroll();
+    },
+    /**
+     * 根据经纬度查询附近停车场列表
+     * @param {Number} currentPage 当前页码
+     */
+    getNearParkList(currentPage, page) {
+      this.queryParams.currentPage = currentPage || 1;
+      this.axios
+        .get('v1/phtons/getNearParkList', {
+          params: this.queryParams,
+          silence: true
+        })
+        .then(resp => {
+          let { datas, resultCount } = resp.result_data || {};
+          datas = datas || [];
+          if (this.queryParams.currentPage <= 1) {
+            this.parkingList = datas;
+          } else {
+            this.parkingList = this.parkingList.concat(datas);
+          }
+          this.addMarkers(datas);
+          this.$refs.mescroll.instance.endBySize(datas.length, resultCount);
+        })
+        .catch(err => {
+          console.error(err);
+          this.$toast(err.message);
+          this.$refs.mescroll.instance.endBySize(0);
+          this.$refs.mescroll.instance.endErr();
+        });
+    },
+    /**
+     * 增加Marker
+     * @param {Array} parkingList 附近搜索列表
+     */
+    addMarkers(parkingList) {
+      let latSum = 0,
+        lngSum = 0,
+        markerArray = [],
+        markerRefs = [];
+      parkingList.forEach((parking, i) => {
+        lngSum += Number(parking.longitude);
+        latSum += Number(parking.latitude);
+        markerArray.push({
+          position: [Number(parking.longitude), Number(parking.latitude)],
+          content: this.getMarkerContent(i),
+          events: {
+            click: () => {
+              this.cellClick(i);
+            },
+            init: o => {
+              markerRefs.push(o);
+            }
+          }
+        });
+      });
+      this.markers =
+        this.queryParams.currentPage <= 1 ?
+          markerArray :
+          this.markers.concat(markerArray);
+
+      this.markerRefs =
+        this.queryParams.currentPage <= 1 ?
+          markerRefs :
+          this.markerRefs.concat(markerRefs);
+
+      parkingList.length > 0 &&
+        (this.mapCenter = [
+          lngSum / parkingList.length,
+          latSum / parkingList.length
+        ]);
     },
     /**
      * 获取Marker内容
@@ -135,57 +297,23 @@ export default {
       }.png"/><span>${i + 1}</span>`;
     },
     /**
-     * 增加Marker
-     * @param {Array} pois 附近搜索列表
+     * 导航
      */
-    addMarkers(pois) {
-      let latSum = 0,
-        lngSum = 0;
-      pois.forEach((poi, i) => {
-        lngSum += poi.lng;
-        latSum += poi.lat;
-        this.markers.push({
-          position: [poi.lng, poi.lat],
-          content: this.getMarkerContent(i),
-          events: {
-            click: () => {
-              this.cellClick(i);
-            }
-          }
-        });
-        this.mapCenter = [lngSum / pois.length, latSum / pois.length];
-      });
+    navigation(parking) {
+      const { longitude, latitude, name } = parking;
+      location.href = `http://uri.amap.com/navigation?from=${
+        this.position.lng
+      },${
+        this.position.lat
+      },我的位置&to=${longitude},${latitude},${name}&src=phtons&callnative=1`;
     },
     /**
-     * 搜索结果回调
-     * @param {Array} pois 附近搜索列表
+     * 停车场详情
      */
-    onSearchResult(pois) {
-      this.pois = pois;
-      this.markers = [];
-      if (pois.length > 0) {
-        this.addMarkers(pois);
-      }
-    },
-    /**
-     * 根据经纬度查询附近停车场列表
-     * @param {Number} currentPage 当前页码
-     */
-    getNearParkList(currentPage) {
-      this.queryParams.currentPage = currentPage || 1;
-      this.axios
-        .get('v1/', {
-          params: this.queryParams
-        })
-        .then(resp => {
-          let resultData = resp.result_data || {};
-          if (this.queryParams.currentPage <= 1) {
-            this.parkingList = resultData.datas;
-          } else {
-            this.parkingList = this.parkingList.concat(resultData.datas);
-          }
-          this.hasMore = resultData.resultCount >= this.queryParams.pageSize;
-        });
+    parkingDetails(parking) {
+      parking.currentPosition = this.position;
+      this.$utils.setSessionItem('parkinglot', parking);
+      this.$router.push('details');
     },
     cellClick(i) {
       this.markers.forEach((marker, index) => {
@@ -195,12 +323,19 @@ export default {
         this.markers[i].content = this.getMarkerContent(i, i);
       });
       this.mapCenter = this.markers[i].position;
+      this.$refs.mescrollpark.scrollTo(
+        0,
+        document.querySelector(`.mint-cell[data-index="${i}"]`).offsetTop
+      );
     }
+  },
+  components: {
+    'me-scroll': Mescroll
   }
 };
 </script>
-<style lang="scss" scoped>
-.amap-wrapper {
+<style lang="scss">
+.parking-list {
   .search-box {
     position: fixed;
     top: 25px;
@@ -221,6 +356,29 @@ export default {
     top: 3px;
     width: 75%;
     text-align: center;
+  }
+  .mescroll.page-container {
+    height: 50%;
+    .mint-spinner-triple-bounce {
+      margin-top: 35px;
+      width: 100%;
+      text-align: center;
+    }
+    .mint-cell--large {
+      .mint-cell-wrapper {
+        padding: 20px 10px 20px 10px;
+        .mint-cell-value {
+          display: block;
+          text-align: right;
+          .mint-cell-value--link {
+            color: #6d6df3;
+            font-size: 13px;
+            margin-top: 20px;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
   }
 }
 </style>

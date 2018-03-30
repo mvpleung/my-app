@@ -38,9 +38,9 @@ export default {
   methods: {
     pay() {
       this.axios
-        .get('v1/', {
+        .get('v1/sample/payTest', {
           params: {
-            openId: this.$store.getters.openId
+            openId: this.$store.getters.id
           },
           errorHandle: true
         })

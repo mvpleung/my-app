@@ -2,7 +2,7 @@
  * 九宫格子项
  * @Date: 2018-02-01 15:27:15 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:08:18
+ * @Last Modified time: 2018-03-22 11:32:49
  */
 <template>
   <a href="javascript:;"
@@ -10,9 +10,17 @@
     @click="onClick"
     :style="style">
     <div class="weui-grid__icon"
-      v-if="hasIconSlot || icon">
+      v-if="hasIconSlot || icon || iconfont">
       <slot name="icon">
-        <img :src="icon"
+        <div v-if="iconfont && iconfont.content"
+          class="iconfont "
+          v-html="iconfont.content"
+          :style="{color: iconfont.color}" />
+        <i v-else-if="iconfont && iconfont.class"
+          :class="['iconfont', iconfont.class]"
+          :style="{color: iconfont.color}" />
+        <img v-else
+          :src="icon"
           alt="">
       </slot>
     </div>
@@ -53,6 +61,10 @@ export default {
      * 图片地址
      */
     icon: String,
+    /**
+     * 图片字体{color,content,class}
+     */
+    iconfont: Object,
     /**
      * 路由地址，可选值['BACK', { replace: true }, '']
      */
@@ -110,10 +122,8 @@ export default {
   },
   methods: {
     onClick() {
-      if (/^javas/.test(this.link) || !this.link) {
-        if (this.itemClick) {
-          this.itemClick(this.index);
-        }
+      if (this.itemClick || !this.link) {
+        this.itemClick && this.itemClick(this.index);
         return;
       }
       const useRouter =
@@ -149,6 +159,11 @@ export default {
     width: 28px;
     height: 28px;
     margin: 0 auto;
+    .iconfont {
+      font-family: 'iconfont';
+      font-size: 30px;
+      font-style: normal;
+    }
   }
   .weui-grid__icon + .weui-grid__label {
     margin-top: 5px;
@@ -157,14 +172,15 @@ export default {
     display: block;
     text-align: center;
     color: #000000;
-    font-size: 14px;
+    font-size: 20px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
   }
   .weui-grid__label span:last-child {
+    color: #888;
     line-height: 2;
-    font-size: 80%;
+    font-size: 70%;
   }
   .weui-grid__icon img {
     display: block;

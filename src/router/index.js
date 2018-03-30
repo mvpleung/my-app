@@ -36,21 +36,24 @@ let camelCase = value => {
 };
 
 const initRoute = rt => {
-  let parentPath =
+  let parentPath = rt.component ?
       rt.component.startWith('components') || rt.component.startWith('pages') ?
         '' :
-        'pages',
+        'pages' :
+      null,
     route = {
       name: rt.name,
       path: rt.path,
       // component: resolve => require([`@/${parentPath}${rt.component}`], resolve), //懒加载
-      component: () => import(`@/${parentPath}${rt.component}`), //按需加载
       redirect: rt.redirect,
+      alias: rt.alias,
       meta: {
         title: rt.title || rt.name,
         description: rt.description
       }
     };
+  parentPath !== null &&
+    (route.component = () => import(`@/${parentPath}${rt.component}`)); //按需加载
   route.meta = Object.assign({}, route.meta, rt.meta);
   return route;
 };
@@ -65,6 +68,12 @@ const registerRoute = config => {
     if ((index = vues.indexOf(`.${page.component}.vue`)) !== -1) {
       vues.splice(index, 1);
     }
+    if (
+      (page.meta || {}).test === true &&
+      process.env.NODE_ENV === 'production'
+    )
+      //过滤 meta 中 test:true 的测试路由
+      return;
     let route = initRoute(page);
     if (page.children && page.children.length > 0) {
       //子路由
@@ -94,7 +103,8 @@ const registerRoute = config => {
       path: vue.substring(1, vue.length - 4) + '/:title?',
       component: () => import(`@/pages${vue.substring(1)}`),
       meta: {
-        requireAuth: true
+        requireAuth: true,
+        keepAlive: true
       }
     });
   });
@@ -104,7 +114,7 @@ const registerRoute = config => {
 const routes = registerRoute(RouterConfig);
 routes.push({
   path: '/',
-  redirect: '/homePage'
+  redirect: '/parkinglot/list'
 });
 
 const router = new Router({
@@ -112,26 +122,18 @@ const router = new Router({
 });
 router.beforeEach((to, from, next) => {
   router.app.$indicator.close();
-  from.path === '/' ?
-    document.title = to.meta.title || to.params.title || document.title :
-    document.setTitle(to.meta.title || to.params.title || document.title);
+  //处理路由导航（前进 or 后退）
   navigationBehavior(from, to);
+  //初始化用户信息（详情 /store/modules/user）
+  store.dispatch(Types.INIT_USER);
   if (
     ($globalConfig.navigator.isWechat || $globalConfig.navigator.isAlipay) && //判断该路由是否需要登录权限
     to.matched.some(r => r.meta.requireAuth)
   ) {
+    //通过vuex state 判断是否登录
     if (store.getters.isLogin) {
-      //通过vuex state 判断是否登录
-      store
-        .dispatch(Types.CHECK_USER_INFO)
-        .then(() => {
-          next();
-        })
-        .catch(err => {
-          //本次存储信息过期，重新获取
-          console.error(err);
-          next(oauth(to));
-        });
+      //更新账户信息
+      updateAccount(to, next, true);
     } else {
       //未登录，触发授权登录事件
       next(oauth(to));
@@ -141,7 +143,7 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-router.afterEach(route => {
+router.afterEach((to, from) => {
   Vue.nextTick(() => {
     //滚动位置保持
     setTimeout(() => {
@@ -160,6 +162,27 @@ let oauth = to => {
     path: '/oauth',
     query: Object.assign({}, { redirect: to.fullPath }, to.query)
   };
+};
+
+/**
+ * 获取账户信息
+ * @param {Object} to
+ * @param {Object} next
+ * @param {Boolean} retry 是否重试
+ */
+let updateAccount = (to, next, retry) => {
+  store
+    .dispatch(Types.UPDATE_ACCOUNT)
+    .then(() => next())
+    .catch(err => {
+      if (err.code === 15002) {
+        //会员不存在（手机不存在），重新获取用户信息
+        next(oauth(to));
+      } else {
+        //重试一次
+        retry ? updateAccount(to, next) : next();
+      }
+    });
 };
 
 /**
@@ -194,28 +217,35 @@ let navigationBehavior = (from, to) => {
       store.dispatch(Types.ADD_ROUTE_CHAIN, [from, to]);
     }
   } else if (routeLength === 1) {
-    forward(to);
+    forward(from, to);
   } else {
     let lastBeforeRoute = store.getters.routeChain[routeLength - 2];
     if (lastBeforeRoute.path === to.path) {
       //返回
       store.dispatch(Types.POP_ROUTE_CHAIN);
       store.dispatch(Types.SET_PAGE_DIRECTION, 'slide-right');
+      back(from, to);
     } else {
       //前进
-      forward(to);
+      forward(from, to);
     }
   }
 };
 
 /**
  * 前进路由
- * @param {Router} route
  */
-let forward = route => {
-  saveHashScroll(route.fullPath, { x: 0, y: 0 }); //前进时，滚动到顶部
+let forward = (from, to) => {
+  saveHashScroll(to.fullPath, { x: 0, y: 0 }); //前进时，滚动到顶部
   store.dispatch(Types.SET_PAGE_DIRECTION, 'slide-left');
-  store.dispatch(Types.ADD_ROUTE_CHAIN, route);
+  store.dispatch(Types.ADD_ROUTE_CHAIN, to);
+};
+/**
+ * 后退路由
+ */
+let back = (from, to) => {
+  typeof from.meta.keepAlive !== 'undefined' && (from.meta.keepAlive = false);
+  typeof to.meta.keepAlive !== 'undefined' && (to.meta.keepAlive = true);
 };
 
 export default router;

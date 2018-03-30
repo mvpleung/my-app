@@ -18,38 +18,19 @@
     "component": "components/common/error"
   },
   {
-    "path": "/login",
-    "name": "login",
-    "title": "登录",
-    "component": "/login/login"
-  },
-  {
-    "path": "/register",
-    "name": "register",
-    "title": "注册",
-    "component": "/login/register"
-  },
-  {
     "path": "/verify",
     "name": "verify",
     "title": "校验测试",
-    "component": "components/common/verify"
+    "component": "components/common/verify",
+    "meta": {
+      "test": true
+    }
   },
   {
     "path": "/logger/true",
     "name": "logger",
     "title": "调试",
     "component": "components/common/logger"
-  },
-  {
-    "path": "/homePage",
-    "name": "homePage",
-    "title": "首页",
-    "component": "/home/homePage",
-    "meta": {
-      "requireAuth": true,
-      "keepAlive": true
-    }
   },
   {
     "path": "/minePage",
@@ -59,6 +40,79 @@
     "meta": {
       "requireAuth": true,
       "keepAlive": true
+    }
+  },
+  {
+    "path": "/merchant/login",
+    "name": "merchantLogin",
+    "title": "优惠券-商户登录",
+    "component": "/merchant/login",
+    "meta": {
+      "requireAuth": false
+    }
+  },
+  {
+    "path": "/merchant/coupon/:groupId/:token",
+    "name": "merchantCoupon",
+    "title": "优惠券-商户",
+    "component": "/merchant/coupon",
+    "meta": {
+      "requireAuth": false
+    }
+  },
+  {
+    "path": "/pay",
+    "name": "payTest",
+    "title": "停车缴费",
+    "component": "/pay/index",
+    "meta": {
+      "requireAuth": true,
+      "test": true
+    }
+  },
+  {
+    "path": "/pay/parking",
+    "name": "parkingFeePayment",
+    "title": "停车缴费",
+    "component": "/parkingFee/payment",
+    "meta": {
+      "requireAuth": true
+    }
+  },
+  {
+    "path": "/pay/recharge",
+    "name": "cashAccountRecharge",
+    "title": "余额充值",
+    "component": "/mine/recharge/index",
+    "meta": {
+      "requireAuth": true
+    }
+  },
+  {
+    "path": "/pay/staggeringpeak",
+    "name": "staggeringPeakPay",
+    "title": "购买错峰产品",
+    "component": "/staggeringPeak/buy",
+    "meta": {
+      "requireAuth": true
+    }
+  },
+  {
+    "path": "/pay/monthly",
+    "name": "monthlyPay",
+    "title": "购买包月产品",
+    "component": "/monthly/buy",
+    "meta": {
+      "requireAuth": true
+    }
+  },
+  {
+    "path": "/test/login",
+    "name": "testLogin",
+    "title": "测试登录",
+    "component": "/test/login",
+    "meta": {
+      "test": true
     }
   }
 ]

@@ -4,7 +4,7 @@
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 npm install
 
@@ -29,13 +29,7 @@ npm run build:sit
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-``` bash
-#CSS说明
-#标题背景颜色#f7f7f7
-#边框线 #e8e8e8
-#左边#9c9c9c右边#666
-
-
+```bash
 #config.json 路由配置信息解释
 # {
 #    "path": "/friends",                    //路由路径
@@ -46,8 +40,7 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 #    "redirect": "",                        //路由重定向
 #    "meta": {                              //路由元数据
 #        "requireAuth": true,               //路由是否需要登录
-#        "wxShare": true                    //路由页是否需要微信分享按钮
+#        "keepAlive": true                    //路由页是否需要保持状态
 #    }
 # }
-
 ```

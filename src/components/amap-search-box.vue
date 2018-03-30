@@ -5,10 +5,10 @@
     <div class="search-box-wrapper">
       <input type="text"
         v-model="keyword"
-        @keyup.enter="search"
+        @keyup.enter="poiOnly ? autoComplete() : search()"
         @input="autoComplete">
       <span class="search-btn"
-        @click="search">搜索</span>
+        @click="poiOnly ? autoComplete() : search()">搜索</span>
     </div>
     <div class="search-tips">
       <ul>
@@ -29,7 +29,14 @@ import { lazyAMapApiLoaderInstance } from 'vue-amap';
 export default {
   name: 'amap-search-box',
   mixins: [RegisterComponentMixin],
-  props: ['searchOption', 'onSearchResult', 'events', 'default', 'isPoi'],
+  props: {
+    searchOption: Object,
+    onSearchResult: Function,
+    events: Object,
+    default: String,
+    isPoi: Boolean,
+    poiOnly: Boolean //是否仅支持 poi 搜索
+  },
   data() {
     return {
       keyword: this.default || '',
@@ -98,8 +105,12 @@ export default {
       });
     },
     changeTip(tip) {
-      this.keyword = tip.name;
-      this.search();
+      this.tips = [];
+      this._onSearchResult({
+        keyword: this.keyword = tip.name,
+        pois: [...tip.location]
+      });
+      // this.search();
     },
     selectTip(type) {
       if (type === 'up' && this.selectedTip > 0) {

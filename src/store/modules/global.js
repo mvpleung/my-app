@@ -3,14 +3,16 @@
  * @Author: liangzc 
  * @Date: 2018-01-18 11:30:49 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-24 16:45:06
+ * @Last Modified time: 2018-03-21 14:38:47
  */
 import {
   UPDATE_CONFIG,
   ADD_ROUTE_CHAIN,
   POP_ROUTE_CHAIN,
   SAVE_HASH_SCROLL,
-  SET_PAGE_DIRECTION
+  SET_PAGE_DIRECTION,
+  SHOW_LOADING,
+  HIDE_LOADING
 } from '@/store/types.js';
 const global = {
   state: {
@@ -23,7 +25,8 @@ const global = {
     },
     scrollMap: {}, //滚动记录
     routeChain: [], //存储路由跳转信息，用于前进 or 后退识别
-    pageDirection: 'fade' //路由切换动画（暂时屏蔽）
+    pageDirection: 'fade', //路由切换动画（暂时屏蔽）
+    globalLoading: false
   },
   getters: {
     url: state => state.config.url || {},
@@ -31,7 +34,8 @@ const global = {
     chainLength: state => state.routeChain.length,
     scrollMap: state => state.scrollMap,
     routeChain: state => state.routeChain,
-    pageDirection: state => state.pageDirection
+    pageDirection: state => state.pageDirection,
+    globalLoading: state => state.globalLoading
   },
   mutations: {
     /**
@@ -66,6 +70,18 @@ const global = {
      */
     [SET_PAGE_DIRECTION]: (state, pageDirection) => {
       state.pageDirection = pageDirection;
+    },
+    /**
+     * 展示loading
+     */
+    [SHOW_LOADING]: state => {
+      state.globalLoading = true;
+    },
+    /**
+     * 隐藏loading
+     */
+    [HIDE_LOADING]: state => {
+      state.globalLoading = false;
     }
   },
   actions: {
@@ -110,8 +126,50 @@ const global = {
      */
     [SET_PAGE_DIRECTION]({ commit }, pageDirection) {
       commit(SET_PAGE_DIRECTION, pageDirection);
+    },
+    /**
+     * 展示loading
+     */
+    [SHOW_LOADING]: ({ commit }) => {
+      commit(SHOW_LOADING);
+    },
+    /**
+     * 隐藏loading
+     */
+    [HIDE_LOADING]: ({ commit }) => {
+      commit(HIDE_LOADING);
     }
   }
 };
 
+/**
+ * 全局配置插件，用于缓存导航信息
+ * @param {Object} store
+ */
+const plugin = store => {
+  const savedState = JSON.parse(
+    sessionStorage.getItem('vxGlobalState') || '{}'
+  );
+  const { global, user } = store.state;
+  store.replaceState({
+    global: Object.assign({}, global, savedState),
+    user
+  });
+  store.subscribeAction((action, state) => {
+    if (action.type === ADD_ROUTE_CHAIN || action.type === SAVE_HASH_SCROLL) {
+      const { routeChain, scrollMap } = store.state.global;
+      sessionStorage.setItem(
+        'vxGlobalState',
+        JSON.stringify(
+          {
+            routeChain,
+            scrollMap
+          },
+          (key, value) => key === 'matched' ? null : value
+        )
+      );
+    }
+  });
+};
 export default global;
+export { plugin };

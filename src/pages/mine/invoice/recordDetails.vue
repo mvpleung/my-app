@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-07 17:58:31 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:05
+ * @Last Modified time: 2018-03-05 10:26:05
  */
 <template>
   <div class="record-details">
@@ -51,14 +51,14 @@ export default {
     return {
       orders: [{}, {}]
     };
+  },
+  created() {
+    document.setTitle('发票详情');
   }
 };
 </script>
 <style lang="scss" scoped>
 .record-details {
-  .page-header {
-    border-bottom: 1px solid #e8e8e8;
-  }
   .page-container {
     .mint-cell:first-child:not(.mint-cell--noborder),
     .mint-cell:nth-child(6) {

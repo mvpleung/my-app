@@ -1,13 +1,23 @@
+/*
+ * 公共授权页
+ * @Author: liangzc 
+ * @Date: 2018-01-10 09:28:33 
+ * @Last Modified by: liangzc
+ * @Last Modified time: 2018-03-19 17:04:17
+ */
 <template>
   <div class="page-container">
-    <img v-show="authFail"
+    <img v-show="oauthFail"
       src="../../assets/refresh.png"
       width="10%">
+    <mt-spinner v-show="!oauthFail"
+      type="triple-bounce"
+      :size="60" />
     <p class="font18"
-      v-show="!authFail">正在跳转...</p>
+      v-show="!oauthFail">正在跳转...</p>
     <p class="font16"
-      v-show="authFail">授权失败，轻触屏幕重新加载</p>
-    <p v-show="authFail">
+      v-show="oauthFail">授权失败，轻触屏幕重新加载</p>
+    <p v-show="oauthFail">
       <span class="font12">{{ errorMsg }}</span>
     </p>
   </div>
@@ -19,7 +29,7 @@ export default {
     return {
       query: {},
       errorMsg: '',
-      authFail: false //授权失败
+      oauthFail: false //授权失败
     };
   },
   created() {
@@ -39,10 +49,17 @@ export default {
           !this.$utils.isEmpty(this.query.auth_code)) &&
         !this.$utils.isEmpty(this.query.state)
       ) {
-        this.authFail = false;
+        this.oauthFail = false;
         //code、state都不为空，授权成功
+        const requestUri = {
+          wechat: 'v1/wx/userinfo',
+          alipay: 'v1/alipay/userinfo'
+        };
         this.axios
-          .get('v1/wechat', { params: this.query, errorHandle: true })
+          .get(requestUri[$globalConfig.navigator.ua], {
+            params: this.query,
+            errorHandle: true
+          })
           .then(resp => {
             this.errorMsg = '';
             if (!this.$utils.isEmpty(this.query.redirect)) {
@@ -51,9 +68,12 @@ export default {
               if (redirectUri) {
                 //兼容外链
                 if (redirectUri.startWith('http')) {
-                  window.top.location.href = redirectUri;
+                  window.top.location.replace(redirectUri);
                 } else {
-                  this.$router.replace(redirectUri);
+                  window.top.location.replace(
+                    `${location.origin}/#${redirectUri}`
+                  );
+                  // this.$router.replace(redirectUri);
                 }
               }
             } else {
@@ -61,7 +81,7 @@ export default {
             }
           })
           .catch(error => {
-            this.authFail = true;
+            this.oauthFail = true;
             this.errorMsg = error.message;
           });
       } else {
@@ -73,20 +93,22 @@ export default {
         };
         var authUri = oatuhUri[$globalConfig.navigator.ua];
         authUri &&
-          (window.top.location.href = authUri.format(
-            encodeURIComponent(
-              `${location.origin}/#/oauth?redirect=${encodeURIComponent(
-                decodeURIComponent(this.query.redirect)
-              )}`
+          window.top.location.replace(
+            authUri.format(
+              encodeURIComponent(
+                `${location.origin}/#/oauth?redirect=${encodeURIComponent(
+                  decodeURIComponent(this.query.redirect)
+                )}`
+              )
             )
-          ));
+          );
       }
     },
     /**
      * 重试
      */
     retry(e) {
-      if (this.authFail) {
+      if (this.oauthFail) {
         window.removeEventListener('touchstart', this.retry);
         //授权失败，轻触重试
         let link = document.createElement('a');
@@ -106,7 +128,7 @@ export default {
   width: 100%;
   font-size: 20px;
   text-align: center;
-  color: rgb(192, 204, 218);
+  color: #8c95a0;
   top: 35%;
   position: fixed;
   p {

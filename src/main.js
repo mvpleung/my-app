@@ -5,20 +5,21 @@ import MintUI from 'mint-ui';
 import VueAMap from 'vue-amap';
 import Axios from './axios';
 import store from './store';
+import { UniquePay, Verify, Utils, EventBus } from './plugins';
 //import verify from 'verify-plugin'
-import verify from './plugins/verify-plugin';
 //import utils from 'vue-utils-plugin'
-import utils from './plugins/utils';
-import UniquePay from './plugins/pay';
+//import UniquePay from 'unique-pay'
 require('es6-promise').polyfill();
 import './css/pageStyle.scss';
+$globalConfig.debug && require('./mock/index');
 
-Vue.use(verify, {
+Vue.use(Verify, {
   blur: true,
   msgbox: MintUI.Toast
 });
-Vue.use(utils);
+Vue.use(Utils);
 Vue.use(UniquePay);
+Vue.use(EventBus);
 
 //install axios
 let installAxios = () => {
@@ -46,8 +47,10 @@ VueAMap.initAMapApiLoader({
     'AMap.ToolBar',
     'AMap.MapType',
     'AMap.PolyEditor',
-    'AMap.CircleEditor'
-  ]
+    'AMap.CircleEditor',
+    'AMap.MarkerClusterer'
+  ],
+  v: '1.4.4'
 });
 
 Vue.config.errorHandler = function(err, vm, info) {

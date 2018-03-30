@@ -29,7 +29,7 @@ axios.interceptors.request.use(
   config => {
     !config.silence && store._vm.$indicator.open(); //config.silence:是否静默
     let _configData = config.data || config.params || {};
-    _configData['platform'] = $globalConfig.navigator.ua;
+    // _configData['platform'] = $globalConfig.navigator.ua;
     if (
       config.method === 'post' &&
       config.headers.post &&
@@ -65,18 +65,19 @@ axios.interceptors.response.use(
   response => {
     !(response.config && response.config.silence) &&
       store._vm.$indicator.close();
+    let responseData = response.data;
     $globalConfig.console &&
       console.log(
         '[response:::]',
-        response.config.response === true ? response : response.data
+        response.config.response === true ? response : responseData
       );
-    let msg = !response.data ?
+    let msg = !responseData ?
       '请求异常，请重试' :
-      response.data.ret === 0 ?
+      responseData.ret === 0 || responseData.status === true ?
         null :
-        response.data.errmsg || '响应失败，请重试';
+        responseData.errmsg || responseData.message || '响应失败，请重试';
     if (msg) {
-      if (response.data && response.data.ret === '4') {
+      if (responseData && responseData.ret === '4') {
         source.cance(data.msg || '登录超时，请重新登录');
         store.dispatch(LOGOUT);
         router.replace({
@@ -90,11 +91,11 @@ axios.interceptors.response.use(
       }
       return Promise.reject({
         message: msg,
-        data: (response.data || {}).data,
-        code: (response.data || {}).ret
+        data: (responseData || {}).data,
+        code: (responseData || {}).ret || (responseData || {}).status
       });
     }
-    return response.config.response === true ? response : response.data;
+    return response.config.response === true ? response : responseData;
   },
   error => {
     let errMsg =

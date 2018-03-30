@@ -22,7 +22,7 @@ module.exports = {
     // 'eslint:recommended',
     'plugin:vue/essential'
   ],
-  plugins: ['vue'],
+  plugins: ['vue', 'flowtype'],
   // add your custom rules here
   rules: {
     // allow paren-less arrow functions
@@ -147,6 +147,8 @@ module.exports = {
       }
     ],
     quotes: ['error', 'single'], //单引号
+
+    //link:https://github.com/vuejs/eslint-plugin-vue
     'vue/v-bind-style': 2, //v-bind 缩写模式
     'vue/v-on-style': 2, //v-on 缩写模式
     'vue/attribute-hyphenation': 2, //kebab-case (短横线分隔式)
@@ -179,6 +181,71 @@ module.exports = {
     'vue/valid-v-else': 2, //v-else 后不能跟表达式
     'vue/valid-v-model': 2, //校验 v-model
     'vue/this-in-template': 2, //template 中不允许出现 this
-    'vue/html-quotes': 2 //html节点必须使用双引号
+    'vue/html-quotes': 2, //html节点必须使用双引号
+
+    //link:https://github.com/mvpleung/eslint-plugin-flowtype
+    'flowtype/boolean-style': [
+      //类型注解中布尔值使用boolean还是bool
+      2,
+      'boolean'
+    ],
+    'flowtype/define-flow-type': 1, //将类型注解标记为已定义，no-undef的检查中不会出现报错
+    'flowtype/delimiter-dangle': [
+      //是否在对象和元组注释中强制使用尾随逗号
+      2,
+      'never'
+    ],
+    'flowtype/generic-spacing': [
+      //泛型对象的尖括号中类型前后的空格规范
+      2,
+      'never'
+    ],
+    'flowtype/no-dupe-keys': 2, //object类型的定义中是否有重复的属性值
+    'flowtype/object-type-delimiter': [
+      //Object类型定义中，属性之前分割符为逗号
+      2,
+      'comma'
+    ],
+    'flowtype/no-primitive-constructor-types': 2, //禁止使用原生的类型，如 Number String Array ,使用 number string array 代替
+    'flowtype/no-types-missing-file-annotation': 2, //使用类型注解的地方不能缺少 @flow
+    'flowtype/no-weak-types': 2, //是否可以使用弱类型any、Object、Function
+    'flowtype/require-parameter-type': 2, //函数的参数是否需要类型注解
+    'flowtype/require-return-type': [
+      //函数返回值是否需要类型注解
+      2,
+      'always',
+      {
+        annotateUndefined: 'never'
+      }
+    ],
+    'flowtype/require-valid-file-annotation': 0, //文件开头@flow的写法
+    'flowtype/semi': [2, 'always'], //使用type自定义类型语句结尾是否需要分号结尾
+    'flowtype/space-after-type-colon': [
+      //类型注解冒号后是否有空格
+      2,
+      'always'
+    ],
+    'flowtype/space-before-generic-bracket': [
+      //类型注解尖括号前是否有空格
+      2,
+      'never'
+    ],
+    'flowtype/space-before-type-colon': [
+      //类型注解冒号前是否有空格
+      2,
+      'never'
+    ],
+    'flowtype/type-id-match': 0, //自定义 type 类型
+    'flowtype/union-intersection-spacing': [
+      //管道操作符规范
+      2,
+      'always'
+    ],
+    'flowtype/use-flow-type': 1 //将通过declare定义的自定义类型标记为已经被使用过，no-unused-vars的检查中不会出现报错
+  },
+  settings: {
+    flowtype: {
+      onlyFilesWithFlowAnnotation: true //是否仅检查有 @flow /* @flow */ 注解的文件
+    }
   }
 };

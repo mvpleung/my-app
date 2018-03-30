@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2017-07-20 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-24 17:46:43
+ * @Last Modified time: 2018-03-29 16:34:53
  */
 
 (function(window) {
@@ -67,6 +67,43 @@
       return 'desktop';
     },
     /**
+     * 桥接过渡函数
+     */
+    onBridgeReady() {
+      return new Promise((resolve, reject) => {
+        if (this.globalConfig.navigator.isWechat) {
+          if (typeof window.WeixinJSBridge === 'undefined') {
+            if (document.addEventListener) {
+              document.addEventListener(
+                'WeixinJSBridgeReady',
+                () => resolve(window.WeixinJSBridge),
+                false
+              );
+            } else if (document.attachEvent) {
+              document.attachEvent('WeixinJSBridgeReady', () =>
+                resolve(window.WeixinJSBridge)
+              );
+              document.attachEvent('onWeixinJSBridgeReady', () =>
+                resolve(window.WeixinJSBridge)
+              );
+            }
+          } else {
+            resolve(window.WeixinJSBridge);
+          }
+        } else if (this.globalConfig.navigator.isAlipay) {
+          if (window.AlipayJSBridge) {
+            resolve(window.AlipayJSBridge);
+          } else {
+            document.addEventListener(
+              'AlipayJSBridgeReady',
+              () => resolve(window.AlipayJSBridge),
+              false
+            );
+          }
+        }
+      });
+    },
+    /**
      * 初始化配置
      */
     initConfig() {
@@ -83,7 +120,10 @@
       const console =
         process.env.ENV_CONFIG === 'dev' || process.env.ENV_CONFIG === 'sit';
       console && (this.globalConfig.console = console);
-
+      window.$OnBridgeReady = this.onBridgeReady();
+      window.$OnBridgeReady.then(Bridge => {
+        Bridge.call('hideOptionMenu');
+      });
       this.logConfig();
       this.navigatorAgent();
     }

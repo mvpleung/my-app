@@ -13,7 +13,7 @@ let Utils = (function() {
       'm+': this.getMinutes(), //分
       's+': this.getSeconds(), //秒
       'q+': Math.floor((this.getMonth() + 3) / 3), //季度
-      'S': this.getMilliseconds() //毫秒
+      S: this.getMilliseconds() //毫秒
     };
     if (/(y+)/.test(fmt))
       fmt = fmt.replace(
@@ -113,6 +113,15 @@ let Utils = (function() {
       value === '' ||
       value.length === 0
     );
+  }
+
+  /**
+   * 是否为空数组
+   * @param  {*}  value
+   * @return {Boolean}
+   */
+  function isEmptyArray(value) {
+    return Array.isArray(value) ? value.length <= 0 : true;
   }
 
   /**
@@ -216,7 +225,7 @@ let Utils = (function() {
     if (!data || isEmptyObject(data)) return;
     url = url ? decodeURIComponent(url) : url;
     let urlArray = (url || window.location.href).split('#'),
-      newUrl = urlArray[1],
+      newUrl = urlArray[1] || urlArray[0],
       params = [],
       split = (url || window.location.href).indexOf('#') >= 0 ? '#' : '';
     forEach(data, (value, key) => {
@@ -225,7 +234,7 @@ let Utils = (function() {
     });
     newUrl = newUrl || urlArray[1] || '';
     return (
-      urlArray[0] +
+      (urlArray[1] ? urlArray[0] : '') +
       split +
       newUrl +
       (newUrl.indexOf('?') !== -1 ?
@@ -240,7 +249,7 @@ let Utils = (function() {
    * @param {*} value 要存入的数据
    * @param {Boolean} needCipher 是否加密存储
    */
-  function setSessionStorage(key, value, needCipher) {
+  function setSessionItem(key, value, needCipher) {
     let str = value instanceof Object ? JSON.stringify(value) : value;
     sessionStorage[key] = str && needCipher ? cipher(str) : str;
   }
@@ -251,7 +260,7 @@ let Utils = (function() {
    * @param {Boolean} needDecipher 是否需要解密获取数据
    * @return {*}
    */
-  function getSessionStorage(key, needDecipher) {
+  function getSessionItem(key, needDecipher) {
     try {
       return JSON.parse(
         sessionStorage[key] && needDecipher ?
@@ -265,6 +274,14 @@ let Utils = (function() {
   }
 
   /**
+   * 移除Session
+   * @param {String} key 键名
+   */
+  function removeSessionItem(key) {
+    sessionStorage.removeItem(key);
+  }
+
+  /**
    * 存入local数据
    * @param {String} key 键名
    * @param {*} value 要存入的数据
@@ -273,15 +290,17 @@ let Utils = (function() {
    * @param {option} exp 过期时间，单位：秒
    * @param {option} needCipher 是否加密存储
    */
-  function setLocalStorage(key, value, option) {
+  function setLocalItem(key, value, option) {
     try {
+      if (typeof option === 'boolean') {
+        option = { needCipher: option };
+      }
       let localStr;
       if (option && typeof option.exp === 'number') {
-        let expDate = new Date();
-        expDate.setSeconds(option.exp);
         localStr = JSON.stringify({
           data: value,
-          time: expDate.getTime()
+          time: Date.now(),
+          exp: option.exp
         });
       } else {
         localStr = value instanceof Object ? JSON.stringify(value) : value;
@@ -300,38 +319,37 @@ let Utils = (function() {
   /**
    * 获取local数据
    * @param {String} key 键名
-   * @param {Object} option 配置项
-   *
-   * @param {option} exp 过期时间（是否超过此时间）
-   * @param {option} force 是否强制删除已过期数据，true：已过期数据返回空
    * @param {option} needDecipher 是否需要解密存储的数据
    *
    * @return {*} 存在 exp : {data: value, time: 过期时间, expire: 是否过期} , 不存在 exp ： 原路返回
    */
-  function getLocalStorage(key, option) {
+  function getLocalItem(key, needDecipher) {
     try {
       let local = JSON.parse(
-        localStorage[key] && option && option.needDecipher ?
+        localStorage[key] && needDecipher ?
           deCipher(localStorage[key]) :
           localStorage[key]
       );
-      if (
-        option &&
-        typeof option.exp === 'number' &&
-        local &&
-        is('Object', local) &&
-        local.time
-      ) {
-        local.expire = new Date().getTime() - local.time > option.exp * 1000;
-        if (option.force && local.expire) {
+      if (local && is('Object', local) && local.time && local.exp) {
+        local.expire = new Date().getTime() - local.time > local.exp * 1000;
+        if (local.expire) {
           return null;
         }
+        return local.data;
       }
       return local;
     } catch (e) {
       console.warn('LocalStorage.Parse:', '[key:', key, ']', e.message);
       return localStorage[key];
     }
+  }
+
+  /**
+   * 移除Local
+   * @param {String} key 键名
+   */
+  function removeLocalItem(key) {
+    localStorage.removeItem(key);
   }
 
   /**
@@ -411,13 +429,17 @@ let Utils = (function() {
   }
 
   /**
-   * 计算年份，返回 yyyy-MM-dd
+   * 步进年份，返回 yyyy-MM-dd
    * @param {Data|String} date 日期对象或日期字符串
    * @param {Number} year 负数减一年，正数加一年
    * @returns {String}
    */
-  function calYear(date, year) {
-    let d = typeof date === 'object' ? date : new Date(date);
+  function stepYear(date, year) {
+    if (is('Number', date)) {
+      year = date;
+      date = null;
+    }
+    let d = is('Date', date) ? date : new Date(date);
     let nextYear = d.getFullYear() + year;
     let month = d.getMonth() + 1;
     let day = d.getDate();
@@ -469,6 +491,21 @@ let Utils = (function() {
   }
 
   /**
+   * 步进天数，返回 yyyy-MM-dd
+   * @param {*} date 日期
+   * @param {Number} days 天数，正：往后 负：往前
+   */
+  function stepDays(date, days) {
+    if (is('Number', date)) {
+      days = date;
+      date = null;
+    }
+    let d = is('Date', date) ? date : new Date(date || Date.now());
+    d.setDate(d.getDate() + days);
+    return d.Format('yyyy-MM-dd');
+  }
+
+  /**
    * 比较日期大小
    * @param {Object} date1 日期1
    * @param {Object} date2 日期2
@@ -492,6 +529,30 @@ let Utils = (function() {
           date2 :
           new Date(date2).getTime();
     return dateTime1 > dateTime2;
+  }
+
+  /**
+   * 计算两个日期相差的天数（第一个参数为减数）
+   * @param {Object} sDate1 日期1
+   * @param {Object} sDate2 日期2
+   */
+  function dateDiff(date1, date2) {
+    if (!date1 || !date2) {
+      return 0;
+    }
+    let dateTime1 =
+      date1 instanceof Date ?
+        date1.getTime() :
+        /^(\+|-)?\d+($|\.\d+$)/.test(date1) ?
+          date1 :
+          new Date(date1).getTime();
+    let dateTime2 =
+      date2 instanceof Date ?
+        date2.getTime() :
+        /^(\+|-)?\d+($|\.\d+$)/.test(date2) ?
+          date2 :
+          new Date(date2).getTime();
+    return parseInt((dateTime1 - dateTime2) / 1000 / 60 / 60 / 24); //把相差的毫秒数转换为天数
   }
 
   /**
@@ -916,24 +977,46 @@ let Utils = (function() {
     return model;
   }
 
+  /**
+   * 跳转带支付页面
+   * @param {String} path 跳转路径
+   * @param {Boolean} replace 是否使用 replace
+   */
+  function goPay(vue, path, replace) {
+    let complete = () => {
+      //解决微信支付 "URL未注册"
+      $globalConfig.navigator.isWechat &&
+        navigator.userAgent.match(/(iPhone\sOS)\s([\d_]+)/) &&
+        location.reload();
+    };
+    replace ?
+      vue.$router.replace(path, complete) :
+      vue.$router.push(path, complete);
+  }
+
   return {
     isEmpty: isEmpty, //是否为空
+    isEmptyArray: isEmptyArray, //是否为空数组
     trim: trim, //去除空格
     is: is, //数据类型判断(Object|Array|String等)
     getUrlParams: getUrlParams, //获取Url传参(a?code=123)
     getUrlVars: getUrlVars, //获取URL全部参数
     removeUrlParam: removeUrlParam, //移除URL参数
     setUrlParams: setUrlParams, //设置URL参数
-    setSessionStorage: setSessionStorage, //存入 session 缓存 （自动转换为String）
-    getSessionStorage: getSessionStorage, //取出 session 缓存（自动转换为Object）
-    setLocalStorage: setLocalStorage, //存入 local 缓存 （自动转换为String）
-    getLocalStorage: getLocalStorage, //取出 local 缓存（自动转换为Object）
+    setSessionItem: setSessionItem, //存入 session 缓存 （自动转换为String）
+    getSessionItem: getSessionItem, //取出 session 缓存（自动转换为Object）
+    removeSessionItem: removeSessionItem, //移除SessionItem
+    setLocalItem: setLocalItem, //存入 local 缓存 （自动转换为String）
+    getLocalItem: getLocalItem, //取出 local 缓存（自动转换为Object）
+    removeLocalItem: removeLocalItem, //移除localItem
     evalJson: evalJson, //解析JSON字符串（过滤XSS攻击代码）
     replaceAll: replaceAll, //替换所有指定的字符
     formatDateTime: formatDateTime, //格式化日期(支持Date、时间戳、日期格式字符串)
-    calYear: calYear, //计算相差年份
+    stepYear: stepYear, //步进年份
+    stepDays: stepDays, //步进天数
     calcAge: calcAge, //计算周岁
     compareDate: compareDate, //比较日期大小
+    dateDiff: dateDiff, //计算日期相差天数
     uuid: uuid, //生成36位唯一码（同 Java UUID）
     hideKeyboard: hideKeyboard, //隐藏软键盘
     pathToRegexp: pathToRegexp, //根据规则获取路径参数（/123/456 => /:code/:id）
@@ -953,10 +1036,11 @@ let Utils = (function() {
     assignClone: assignClone, //深度合并（深度合并克隆）
     toThousandslsFilter: toThousandslsFilter, //千分位分割
     resetModel: resetModel, //重置Model对象
-    setModelValue: setModelValue //设置Model 数据 setModelValue(obj, value);
+    setModelValue: setModelValue, //设置Model 数据 setModelValue(obj, value);
+    goPay: goPay //跳转带有支付功能得页面，用于解决微信支付 URL未注册问题
   };
 })();
 
 typeof exports === 'object' && typeof module !== 'undefined' ?
   module.exports = Utils :
-  window.UnionPay = Utils;
+  window.Utils = Utils;

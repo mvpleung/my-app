@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-05 09:55:36 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-09 15:20:11
+ * @Last Modified time: 2018-03-01 15:18:00
  */
 <template>
   <div class="bill-details">
@@ -39,7 +39,6 @@ export default {
   .page-header {
     margin-top: 20%;
     text-align: center;
-    border-bottom: 1px solid #e8e8e8;
   }
 }
 </style>

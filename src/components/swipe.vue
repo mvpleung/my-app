@@ -3,7 +3,7 @@
  * @Author: liangzc 
  * @Date: 2018-02-01 16:23:47 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:08:43
+ * @Last Modified time: 2018-03-05 14:02:35
  */
 <template>
   <div class="page-swipe">
@@ -19,7 +19,8 @@
         :key="index">
         <div class="slide"
           @click="$emit('item-click', item, index)">
-          <img :src="item[imgKey]">
+          <img class="ignore"
+            :src="item[imgKey]">
           <div class="title"
             v-if="!$utils.isEmpty(item[titleKey])">{{ item[titleKey] }}</div>
         </div>
@@ -113,24 +114,23 @@ export default {
   }
 
   .slide {
-    // background-color: red;
     position: relative;
-  }
-  .slide img {
-    width: 100%;
-    height: 141px;
-  }
-  .slide .title {
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    background-color: gray;
-    opacity: 0.6;
-    font-size: 13px;
-    text-align: left;
-    line-height: 1.5;
-    padding-left: 10px;
-    height: 25px;
+    img.ignore {
+      width: 100%;
+      height: 141px;
+    }
+    .title {
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      background-color: gray;
+      opacity: 0.6;
+      font-size: 13px;
+      text-align: left;
+      line-height: 1.5;
+      padding-left: 10px;
+      height: 25px;
+    }
   }
 }
 </style>

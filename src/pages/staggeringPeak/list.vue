@@ -3,56 +3,64 @@
  * @Author: liangzc 
  * @Date: 2018-01-30 14:31:46 
  * @Last Modified by: liangzc
- * @Last Modified time: 2018-02-27 11:04:46
+ * @Last Modified time: 2018-03-29 11:28:34
  */
 <template>
-  <div class="amap-wrapper">
+  <div class="staggering-peak page-container">
     <amap-search-box class="search-box"
+      poi-only
       :search-option="searchOption"
       :on-search-result="onSearchResult" />
+    <div class="page-container-label"
+      @click="position.status !== 1 ? getCurrentPosition() : null">
+      <span>
+        <i class="iconfont icon-location" />{{ position.formattedAddress }}
+      </span>
+    </div>
     <el-amap class="amap-box"
-      :style="{width: mapStyle.width + 'px', height: mapStyle.height + 'px'}"
+      ref="amap"
       :vid="'amap-vue'"
       :plugin="plugin"
-      :center="mapCenter"
-      :zoom="zoom">
-      <el-amap-marker v-for="(marker, index) in markers"
-        :key="index"
-        :position="marker.position"
-        :events="marker.events"
-        :content="marker.content" />
-      <el-amap-info-window v-for="(window, index) in windows"
-        :key="index + 1000"
-        :position="window.position"
-        :visible="window.visible"
-        :content="window.content" />
-    </el-amap>
-    <div :style="{height: mapStyle.height + 'px', overflow: 'auto'}"
-      v-infinite-scroll="() => getNearStaProList(queryParams.currentPage++)"
-      :infinite-scroll-disabled="hasMore"
-      infinite-scroll-distance="50">
-      <mt-cell v-for="(poi, i) in pois"
-        :key="i + 10000"
-        :title="poi.name"
-        :label="poi.address"
-        @click.native="cellClick(i)" />
-    </div>
+      :center="[-1,-1]" />
+    <me-scroll ref="mescroll"
+      :opt-down="{ auto: false }"
+      :opt-up="{  auto: false, empty: { tip: '没有搜索到相关产品' }}"
+      :up-callback="() => getNearStaProList(queryParams.currentPage+1)"
+      :down-callback="() => getNearStaProList(1)">
+      <mt-spinner v-show="loading"
+        type="triple-bounce"
+        :size="60" />
+      <mt-cell v-for="(product, i) in productList"
+        :key="i + 1000"
+        class="mint-cell--large"
+        is-link
+        @click.native="buy(product)">
+        <template slot="title">
+          <span class="mint-cell-text">{{ product.parkingName }}</span>
+          <span class="mint-cell-label"
+            v-show="position.status === 1">
+            距您：{{ product | distance(position) }}
+          </span>
+          <span class="mint-cell-label">{{ product.parkAddress }}</span>
+          <span class="mint-cell-label">
+            错峰时间：{{ product | staggeringTime }}
+          </span>
+          <span class="mint-cell-label">
+            错峰价格：{{ product.price }}元/{{ product.activeDay }}天
+          </span>
+        </template>
+      </mt-cell>
+    </me-scroll>
   </div>
 </template>
 
 <script>
-import { amapSearchBox } from '@/components';
+import Mescroll from 'vue-mescroll/mescroll';
+import { AmapSearchBox } from '@/components';
+const chartArray = ['一', '二', '三', '四', '五', '六', '日'];
 export default {
   data() {
     return {
-      mapStyle: {
-        width: 400,
-        height: 400
-      },
-      mapCenter: [-1, -1],
-      zoom: 15,
-      markers: [],
-      windows: [],
       searchOption: {
         citylimit: true
       },
@@ -61,109 +69,116 @@ export default {
         {
           pName: 'Geolocation',
           buttonPosition: 'RB',
+          zoomToAccuracy: true,
           events: {
             init: this.initEvent
           }
-        },
-        {
-          pName: 'ToolBar',
-          position: 'RB',
-          ruler: false,
-          liteStyle: true,
-          direction: false
-        },
-        'Scale'
+        }
       ],
-      pois: [],
       //停车场查询参数
       queryParams: {
         longitude: '', //精度
         latitude: '', //纬度
         keyWords: '', //关键字
         currentPage: 1,
-        pageSize: 10
+        pageSize: 20
       },
-      hasMore: true,
-      parkingList: []
+      loading: false,
+      position: {
+        //定位信息
+        formattedAddress: '定位中...'
+      },
+      productList: [],
+      map: null
     };
   },
   created() {
     document.setTitle('错峰产品');
-    this.$nextTick(() => {
-      this.resetMapSize();
-    });
-    let resizeFunc = window.onresize;
-    window.onresize = () => {
-      this.resetMapSize();
-      resizeFunc && resizeFunc.apply(this, arguments);
-    };
+    //重置缓存
+    this.$utils.removeSessionItem('staggeringPeak');
+  },
+  filters: {
+    /**
+     * 错峰时间
+     */
+    staggeringTime(product) {
+      let weekArray = (product.staggeringWeek || '')
+        .split(',')
+        .sort((a, b) => Number(a) > Number(b));
+      return (
+        (weekArray.length > 0 ?
+          `周${chartArray[Number(weekArray.slice(0, 1)[0])]}至周${
+            chartArray[Number(weekArray.slice(-1)[0])]
+          }` :
+          '') +
+        ',' +
+        product.staggeringTime
+      );
+    },
+    /**
+     * 距离
+     */
+    distance(product, position) {
+      const { lng, lat } = position.position || {};
+      let distance = parseInt(
+        AMap.GeometryUtil.distance(
+          [lng, lat],
+          [product.longitude, product.latitude]
+        )
+      );
+      !isNaN(distance) &&
+        (product.distanceDesc =
+          distance <= 0 ?
+            '<1米' :
+            distance >= 1000 ?
+              `${(distance / 1000).toFixed(1)}公里` :
+              `${distance}米`);
+      return product.distanceDesc;
+    }
   },
   methods: {
-    /**
-     * 重置地图尺寸
-     */
-    resetMapSize() {
-      this.mapStyle = {
-        width: window.innerWidth,
-        height: window.innerHeight / 2
-      };
-    },
     initEvent(map) {
-      //手动处理定位iCON位置
-      let geoIcon = document.getElementsByClassName('amap-geolocation-con')[0];
-      geoIcon.style.right = 14 + 'px';
-      geoIcon.style.bottom = 130 + 'px';
-      // o 是高德地图定位插件实例
-      map.getCurrentPosition((status, result) => {
-        if (result && result.position) {
-          const { lng, lat } = result.position;
-          this.searchOption.city = (result.addressComponent || {}).city;
-          this.center = [lng, lat];
-          this.queryParams.longitude = lng;
-          this.queryParams.latitude = lat;
-          this.$nextTick().then(() => this.getNearStaProList());
-        }
-      });
+      this.map = map;
+      this.getCurrentPosition(map);
     },
     /**
-     * 获取Marker内容
-     * @param {Number} i 下标
-     * @param {Number} currentIndex 当前下标
+     * 定位
      */
-    getMarkerContent(i, currentIndex) {
-      return `<img src="http://webapi.amap.com/theme/v1.3/markers/n/mark_${
-        i === currentIndex ? 'r' : 'b'
-      }.png"/><span>${i + 1}</span>`;
-    },
-    /**
-     * 增加Marker
-     * @param {Array} pois 附近搜索列表
-     */
-    addMarkers(pois) {
-      let latSum = 0,
-        lngSum = 0;
-      pois.forEach((poi, i) => {
-        lngSum += poi.lng;
-        latSum += poi.lat;
-        this.markers.push({
-          position: [poi.lng, poi.lat],
-          content: this.getMarkerContent(i),
-          events: {
-            click: () => {
-              this.cellClick(i);
-            }
+    getCurrentPosition(map) {
+      this.loading = true;
+      (map || this.map) &&
+        (map || this.map).getCurrentPosition((status, result) => {
+          this.position = result || {};
+          if (result && result.position) {
+            const { lng, lat } = result.position;
+            this.searchOption.city = (result.addressComponent || {}).city;
+            this.center = [lng, lat];
+            this.queryParams.longitude = lng;
+            this.queryParams.latitude = lat;
+            this.$nextTick().then(() =>
+              this.$refs.mescroll.instance.triggerDownScroll()
+            );
+          } else {
+            this.position = {
+              formattedAddress: '定位失败，点击重试'
+            };
           }
+          this.loading = false;
         });
-        this.mapCenter = [lngSum / pois.length, latSum / pois.length];
-      });
     },
     /**
      * 搜索回调
      * @param {String} result 搜索结果
      */
     onSearchResult(result) {
-      this.queryParams.keyWords = result.keyword;
-      this.getNearStaProList();
+      const poi = result.pois[0] || {};
+      this.queryParams = {
+        ...this.queryParams,
+        // keyWords: result.keyword, //接口限制，暂时屏蔽
+        longitude: poi.lng || 0,
+        latitude: poi.lat || 0
+      };
+      this.$refs.mescroll.instance.triggerDownScroll();
     },
     /**
      * 根据经纬度查询附近停车场列表
@@ -172,56 +187,76 @@ export default {
     getNearStaProList(currentPage) {
       this.queryParams.currentPage = currentPage || 1;
       this.axios
-        .get('v1/', {
-          params: this.queryParams
+        .get('v1/phtons/getNearStaProList', {
+          params: this.queryParams,
+          silence: true
         })
         .then(resp => {
-          let resultData = resp.result_data || {};
+          let { datas, resultCount } = resp.result_data || {};
+          datas = datas || [];
           if (this.queryParams.currentPage <= 1) {
-            this.parkingList = resultData.datas;
+            this.productList = datas;
           } else {
-            this.parkingList = this.parkingList.concat(resultData.datas);
+            this.productList = this.productList.concat(datas);
           }
-          this.hasMore = resultData.resultCount >= this.queryParams.pageSize;
+          this.$refs.mescroll.instance.endBySize(datas.length, resultCount);
+        })
+        .catch(err => {
+          console.error(err);
+          this.$toast(err.message);
+          this.$refs.mescroll.instance.endBySize(0);
+          this.$refs.mescroll.instance.endErr();
         });
     },
-    cellClick(i) {
-      this.markers.forEach((marker, index) => {
-        index !== i && (marker.content = this.getMarkerContent(index));
-      });
-      this.$nextTick(() => {
-        this.markers[i].content = this.getMarkerContent(i, i);
-      });
-      this.mapCenter = this.markers[i].position;
+    /**
+     * 购买
+     */
+    buy(product) {
+      this.$utils.setSessionItem('staggeringPeak', product, true);
+      this.$utils.goPay(this, '/pay/staggeringpeak');
     }
   },
   components: {
-    amapSearchBox
+    AmapSearchBox,
+    'me-scroll': Mescroll
   }
 };
 </script>
-<style lang="scss" scoped>
-.amap-wrapper {
+<style lang="scss">
+.staggering-peak {
   .search-box {
-    position: fixed;
     top: 25px;
-    width: 80%;
-    left: calc(20% /2);
+    width: 90%;
+    left: calc(10% /2);
     z-index: 999;
-    opacity: 0.8;
+    border: 0.5px solid #d9d9d9;
+  }
+  .page-container-label {
+    width: 96%;
+    left: calc(4% /2);
+    color: #888;
+    display: block;
+    font-size: 13px;
+    margin-left: 10px;
+    position: relative;
+    top: 40px;
+    line-height: 1.4;
+    .icon-location {
+      font-size: 18px;
+    }
   }
   .amap-box {
-    width: 400px;
-    height: 400px;
+    display: none;
   }
-  .amap-marker-content span {
-    color: white;
-    font-size: 12px;
-    position: absolute;
-    left: 2px;
-    top: 3px;
-    width: 75%;
-    text-align: center;
+  .mescroll {
+    top: 22%;
+    height: 78%;
+    .mint-spinner-triple-bounce {
+      top: 40%;
+      position: fixed;
+      width: 100%;
+      text-align: center;
+    }
   }
 }
 </style>
